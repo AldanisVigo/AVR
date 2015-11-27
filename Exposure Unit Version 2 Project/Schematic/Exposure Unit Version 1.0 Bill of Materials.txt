@@ -1,0 +1,27 @@
+Partlist exported from /Users/aldanisvigo/Documents/eagle/UV Exposure Unit/AVR Exposure Unit v1.0.sch at 10/27/15 6:12 AM
+
+Part Value              Device           Package           Description                           DESCRIPTION MF MPN           OC_FARNELL OC_NEWARK PACKAGE SUPPLIER          VDC
+C1   22pF               CAPKIT           CAP-PTH-SMALL-KIT Capacitor                                                                                                            
+C2   22pF               CAPKIT           CAP-PTH-SMALL-KIT Capacitor                                                                                                            
+IC1  4116R-331          DIL16            DIL16             Dual In Line / Socket                                                                                                
+IC2  4116R-331          DIL16            DIL16             Dual In Line / Socket                                                                                                
+IC3  4116R-102          DIL16            DIL16             Dual In Line / Socket                                                                                                
+JP1  DIGIT 2_FEM_HEADER M07LONGPADS      1X07_LONGPADS     Header 7                                                                                                             
+JP2  DIGIT 1_FEM_HEADER M07LONGPADS      1X07_LONGPADS     Header 7                                                                                                             
+JP3  AVRISPMKII         AVR_SPI_PRG_6PTH 2X3               AVR ISP 6 Pin                                                                                                        
+JP4  PWR_IN             M02LOCK          1X02_LOCK         Standard 2-pin 0.1" header. Use with                                                                              5  
+JP5  LID_SW             M02LOCK          1X02_LOCK         Standard 2-pin 0.1" header. Use with                                                                                 
+JP6  UV_SW              M02LOCK          1X02_LOCK         Standard 2-pin 0.1" header. Use with                                                                                 
+JP7  5VDC PIEZO         M02LOCK          1X02_LOCK         Standard 2-pin 0.1" header. Use with                                                                                 
+JP8  STOP_SW            M02LOCK          1X02_LOCK         Standard 2-pin 0.1" header. Use with                                                                              5  
+JP9  START_SW           M02LOCK          1X02_LOCK         Standard 2-pin 0.1" header. Use with                                                                              5  
+JP10 10kΩ POT           M03PTH           1X03              Header 3                                                                                                             
+Q2   16MHz              CRYSTALHC49S     HC49/S            CRYSTAL                                                            1667008    unknown                                
+R1   10kΩ               R-US_0207/10     0207/10           RESISTOR, American symbol                                                                                            
+R2   1kΩ                R-US_0207/10     0207/10           RESISTOR, American symbol                                                                                            
+R3   1kΩ                R-US_0207/10     0207/10           RESISTOR, American symbol                                                                                            
+R4   1kΩ                R-US_0207/10     0207/10           RESISTOR, American symbol                                                                                            
+S1   RESET              TAC_SWITCHPTH    TACTILE-PTH       Momentary Switch                                                                                                     
+U1   ATMEGA168A-PU      ATMEGA168A-PU    DIP254P762X457-28 MCU                                   MCU            ATMEGA168A-PU 1841605    12T1297   DIP-28  Atmel                
+U2   SN74LS47N          SN74LS47N        DIP254P762X508-16 BCD-TO-SEVEN-SEGMENT DECODERS/DRIVERS                SN74LS47N     1739829    60K6887   PDIP-16 Texas Instruments    
+U3   SN74LS47N          SN74LS47N        DIP254P762X508-16 BCD-TO-SEVEN-SEGMENT DECODERS/DRIVERS                SN74LS47N     1739829    60K6887   PDIP-16 Texas Instruments    

@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "9AEEA621B814DF08BBABDC598D5B8DF8230A279F",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "2D8F4E22B6431D47CC002CB6B4F99B51775F0D3B" : 0,
+    "9AEEA621B814DF08BBABDC598D5B8DF8230A279F" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "7F0469D4-EBF9-4B5B-AED2-D52070E8C20D",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "2D8F4E22B6431D47CC002CB6B4F99B51775F0D3B" : "",
+    "9AEEA621B814DF08BBABDC598D5B8DF8230A279F" : "AVR\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "LCR",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "LCR\/LCR\/LCR.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/AldanisVigo\/",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2D8F4E22B6431D47CC002CB6B4F99B51775F0D3B"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/AldanisVigo\/AVR.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9AEEA621B814DF08BBABDC598D5B8DF8230A279F"
+    }
+  ]
+}

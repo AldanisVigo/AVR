@@ -1,0 +1,2196 @@
+   1               		.file	"mpu6050.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  11               	mpu6050_readBytes.part.0:
+  12               	.LFB25:
+  13               		.file 1 "mpu6050.c"
+   1:mpu6050.c     **** /*
+   2:mpu6050.c     **** MPU6050 lib 0x02
+   3:mpu6050.c     **** 
+   4:mpu6050.c     **** copyright (c) Davide Gironi, 2012
+   5:mpu6050.c     **** 
+   6:mpu6050.c     **** Released under GPLv3.
+   7:mpu6050.c     **** Please refer to LICENSE file for licensing information.
+   8:mpu6050.c     **** */
+   9:mpu6050.c     **** 
+  10:mpu6050.c     **** 
+  11:mpu6050.c     **** #include <stdlib.h>
+  12:mpu6050.c     **** #include <string.h>
+  13:mpu6050.c     **** #include <avr/io.h>
+  14:mpu6050.c     **** #include <avr/pgmspace.h>
+  15:mpu6050.c     **** #include <avr/interrupt.h>
+  16:mpu6050.c     **** #include <util/delay.h>
+  17:mpu6050.c     **** 
+  18:mpu6050.c     **** #include "mpu6050.h"
+  19:mpu6050.c     **** 
+  20:mpu6050.c     **** #if MPU6050_GETATTITUDE == 1 || MPU6050_GETATTITUDE == 2
+  21:mpu6050.c     **** #include <math.h>  //include libm
+  22:mpu6050.c     **** #endif
+  23:mpu6050.c     **** 
+  24:mpu6050.c     **** //path to i2c fleury lib
+  25:mpu6050.c     **** #include MPU6050_I2CFLEURYPATH
+  26:mpu6050.c     **** 
+  27:mpu6050.c     **** volatile uint8_t buffer[14];
+  28:mpu6050.c     **** 
+  29:mpu6050.c     **** /*
+  30:mpu6050.c     ****  * read bytes from chip register
+  31:mpu6050.c     ****  */
+  32:mpu6050.c     **** int8_t mpu6050_readBytes(uint8_t regAddr, uint8_t length, uint8_t *data) {
+  14               		.loc 1 32 0
+  15               		.cfi_startproc
+  16               	.LVL0:
+  17 0000 AF92      		push r10
+  18               	.LCFI0:
+  19               		.cfi_def_cfa_offset 3
+  20               		.cfi_offset 10, -2
+  21 0002 BF92      		push r11
+  22               	.LCFI1:
+  23               		.cfi_def_cfa_offset 4
+  24               		.cfi_offset 11, -3
+  25 0004 DF92      		push r13
+  26               	.LCFI2:
+  27               		.cfi_def_cfa_offset 5
+  28               		.cfi_offset 13, -4
+  29 0006 EF92      		push r14
+  30               	.LCFI3:
+  31               		.cfi_def_cfa_offset 6
+  32               		.cfi_offset 14, -5
+  33 0008 FF92      		push r15
+  34               	.LCFI4:
+  35               		.cfi_def_cfa_offset 7
+  36               		.cfi_offset 15, -6
+  37 000a 0F93      		push r16
+  38               	.LCFI5:
+  39               		.cfi_def_cfa_offset 8
+  40               		.cfi_offset 16, -7
+  41 000c 1F93      		push r17
+  42               	.LCFI6:
+  43               		.cfi_def_cfa_offset 9
+  44               		.cfi_offset 17, -8
+  45 000e CF93      		push r28
+  46               	.LCFI7:
+  47               		.cfi_def_cfa_offset 10
+  48               		.cfi_offset 28, -9
+  49 0010 DF93      		push r29
+  50               	.LCFI8:
+  51               		.cfi_def_cfa_offset 11
+  52               		.cfi_offset 29, -10
+  53 0012 00D0      		rcall .
+  54               	.LCFI9:
+  55               		.cfi_def_cfa_offset 13
+  56 0014 CDB7      		in r28,__SP_L__
+  57 0016 DEB7      		in r29,__SP_H__
+  58               	.LCFI10:
+  59               		.cfi_def_cfa_register 28
+  60               	/* prologue: function */
+  61               	/* frame size = 2 */
+  62               	/* stack size = 11 */
+  63               	.L__stack_usage = 11
+  64 0018 182F      		mov r17,r24
+  65 001a D62E      		mov r13,r22
+  33:mpu6050.c     **** 	uint8_t i = 0;
+  34:mpu6050.c     **** 	int8_t count = 0;
+  35:mpu6050.c     **** 	if(length > 0) {
+  36:mpu6050.c     **** 		//request register
+  37:mpu6050.c     **** 		i2c_start(MPU6050_ADDR | I2C_WRITE);
+  66               		.loc 1 37 0
+  67 001c 80ED      		ldi r24,lo8(-48)
+  68               	.LVL1:
+  69 001e 4983      		std Y+1,r20
+  70 0020 5A83      		std Y+2,r21
+  71 0022 0E94 0000 		call i2c_start
+  72               	.LVL2:
+  38:mpu6050.c     **** 		i2c_write(regAddr);
+  73               		.loc 1 38 0
+  74 0026 812F      		mov r24,r17
+  75 0028 0E94 0000 		call i2c_write
+  76               	.LVL3:
+  77               	.LBB12:
+  78               	.LBB13:
+  79               		.file 2 "/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h"
+   1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   6:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   9:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  12:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      distribution.
+  16:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  17:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  21:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  33:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* $Id$ */
+  34:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  35:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  38:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  41:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  42:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <math.h>
+  45:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  46:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \file */
+  47:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \code
+  49:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \endcode
+  53:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  54:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     used.
+  58:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  59:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  68:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     routines linked into the application.
+  76:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  77:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  81:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** */
+  82:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  83:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  87:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  88:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef F_CPU
+  89:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  93:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  94:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  97:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  98:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #  include <math.h>
+ 102:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 103:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 104:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 105:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 107:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 109:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 112:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 114:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 120:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 125:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 129:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 132:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 140:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 141:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 142:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 144:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 145:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 148:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 149:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 152:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 155:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 158:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 159:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 160:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 164:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 165:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #else
+ 166:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint16_t __ticks;
+ 167:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 4e3) * __ms;
+ 168:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 169:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks = 1;
+ 170:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	else if (__tmp > 65535)
+ 171:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	{
+ 172:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//	__ticks = requested delay in 1/10 ms
+ 173:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks = (uint16_t) (__ms * 10.0);
+ 174:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		while(__ticks)
+ 175:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		{
+ 176:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 			// wait 1/10 ms
+ 177:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 			_delay_loop_2(((F_CPU) / 4e3) / 10);
+ 178:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 			__ticks --;
+ 179:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		}
+ 180:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		return;
+ 181:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	}
+ 182:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	else
+ 183:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks = (uint16_t)__tmp;
+ 184:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	_delay_loop_2(__ticks);
+ 185:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 186:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** }
+ 187:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 188:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 189:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 190:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 191:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __us microseconds, using _delay_loop_1().
+ 192:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 193:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 194:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 195:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 196:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 768 us / F_CPU in MHz.
+ 197:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 198:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the user requests a delay greater than the maximal possible one,
+ 199:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_us() will automatically call _delay_ms() instead.  The user
+ 200:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    will not be informed about this case.
+ 201:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 202:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 203:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 us/ F_CPU in MHz. For
+ 204:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflow results in
+ 205:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0us.
+ 206:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   
+ 207:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 208:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 209:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 210:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 211:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 212:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 213:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  
+ 214:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_us(double __us) with 
+ 215:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible.
+ 216:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 217:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 218:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 219:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 220:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 221:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 222:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 223:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 224:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_us(double __us)
+ 225:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 226:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 227:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 228:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 229:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 230:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 231:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 232:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e6) * __us;
+ 233:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 234:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 235:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 236:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 237:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 238:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 239:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 240:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 241:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 242:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 243:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 244:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 245:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+  80               		.loc 2 245 0
+  81 002c 85E3      		ldi r24,lo8(53)
+  82 002e 8A95      		1: dec r24
+  83 0030 01F4      		brne 1b
+  84 0032 0000      		nop
+  85               	.LBE13:
+  86               	.LBE12:
+  39:mpu6050.c     **** 		_delay_us(10);
+  40:mpu6050.c     **** 		//read data
+  41:mpu6050.c     **** 		i2c_start(MPU6050_ADDR | I2C_READ);
+  87               		.loc 1 41 0
+  88 0034 81ED      		ldi r24,lo8(-47)
+  89 0036 0E94 0000 		call i2c_start
+  90               	.LVL4:
+  91 003a 4981      		ldd r20,Y+1
+  92 003c A42E      		mov r10,r20
+  93 003e 5A81      		ldd r21,Y+2
+  94 0040 B52E      		mov r11,r21
+  95 0042 00E0      		ldi r16,0
+  96 0044 10E0      		ldi r17,0
+  42:mpu6050.c     **** 		for(i=0; i<length; i++) {
+  43:mpu6050.c     **** 			count++;
+  44:mpu6050.c     **** 			if(i==length-1)
+  97               		.loc 1 44 0
+  98 0046 ED2C      		mov r14,r13
+  99 0048 F12C      		mov r15,__zero_reg__
+ 100 004a E1E0      		ldi r30,1
+ 101 004c EE1A      		sub r14,r30
+ 102 004e F108      		sbc r15,__zero_reg__
+ 103               	.LVL5:
+ 104               	.L2:
+  42:mpu6050.c     **** 		for(i=0; i<length; i++) {
+ 105               		.loc 1 42 0
+ 106 0050 0D15      		cp r16,r13
+ 107 0052 00F4      		brsh .L8
+ 108               	.LVL6:
+ 109               		.loc 1 44 0
+ 110 0054 0E15      		cp r16,r14
+ 111 0056 1F05      		cpc r17,r15
+ 112 0058 01F4      		brne .L3
+  45:mpu6050.c     **** 				data[i] = i2c_readNak();
+ 113               		.loc 1 45 0
+ 114 005a 0E94 0000 		call i2c_readNak
+ 115               	.LVL7:
+ 116 005e 00C0      		rjmp .L6
+ 117               	.L3:
+  46:mpu6050.c     **** 			else
+  47:mpu6050.c     **** 				data[i] = i2c_readAck();
+ 118               		.loc 1 47 0
+ 119 0060 0E94 0000 		call i2c_readAck
+ 120               	.LVL8:
+ 121               	.L6:
+ 122 0064 F501      		movw r30,r10
+ 123 0066 8083      		st Z,r24
+ 124               	.LVL9:
+ 125 0068 0F5F      		subi r16,-1
+ 126 006a 1F4F      		sbci r17,-1
+ 127               	.LVL10:
+ 128 006c FFEF      		ldi r31,-1
+ 129 006e AF1A      		sub r10,r31
+ 130 0070 BF0A      		sbc r11,r31
+ 131 0072 00C0      		rjmp .L2
+ 132               	.L8:
+  48:mpu6050.c     **** 		}
+  49:mpu6050.c     **** 		i2c_stop();
+ 133               		.loc 1 49 0
+ 134 0074 0E94 0000 		call i2c_stop
+ 135               	.LVL11:
+  50:mpu6050.c     **** 	}
+  51:mpu6050.c     **** 	return count;
+  52:mpu6050.c     **** }
+ 136               		.loc 1 52 0
+ 137 0078 8D2D      		mov r24,r13
+ 138               	/* epilogue start */
+ 139 007a 0F90      		pop __tmp_reg__
+ 140 007c 0F90      		pop __tmp_reg__
+ 141 007e DF91      		pop r29
+ 142 0080 CF91      		pop r28
+ 143 0082 1F91      		pop r17
+ 144               	.LVL12:
+ 145 0084 0F91      		pop r16
+ 146               	.LVL13:
+ 147 0086 FF90      		pop r15
+ 148 0088 EF90      		pop r14
+ 149 008a DF90      		pop r13
+ 150               	.LVL14:
+ 151 008c BF90      		pop r11
+ 152 008e AF90      		pop r10
+ 153 0090 0895      		ret
+ 154               		.cfi_endproc
+ 155               	.LFE25:
+ 157               	.global	mpu6050_readBytes
+ 159               	mpu6050_readBytes:
+ 160               	.LFB11:
+  32:mpu6050.c     **** int8_t mpu6050_readBytes(uint8_t regAddr, uint8_t length, uint8_t *data) {
+ 161               		.loc 1 32 0
+ 162               		.cfi_startproc
+ 163               	.LVL15:
+ 164               	/* prologue: function */
+ 165               	/* frame size = 0 */
+ 166               	/* stack size = 0 */
+ 167               	.L__stack_usage = 0
+  35:mpu6050.c     **** 	if(length > 0) {
+ 168               		.loc 1 35 0
+ 169 0092 6111      		cpse r22,__zero_reg__
+ 170 0094 0C94 0000 		jmp mpu6050_readBytes.part.0
+ 171               	.LVL16:
+ 172               	.L10:
+ 173               		.loc 1 52 0
+ 174 0098 80E0      		ldi r24,0
+ 175               	.LVL17:
+ 176 009a 0895      		ret
+ 177               		.cfi_endproc
+ 178               	.LFE11:
+ 180               	.global	mpu6050_readByte
+ 182               	mpu6050_readByte:
+ 183               	.LFB12:
+  53:mpu6050.c     **** 
+  54:mpu6050.c     **** /*
+  55:mpu6050.c     ****  * read 1 byte from chip register
+  56:mpu6050.c     ****  */
+  57:mpu6050.c     **** int8_t mpu6050_readByte(uint8_t regAddr, uint8_t *data) {
+ 184               		.loc 1 57 0
+ 185               		.cfi_startproc
+ 186               	.LVL18:
+ 187               	/* prologue: function */
+ 188               	/* frame size = 0 */
+ 189               	/* stack size = 0 */
+ 190               	.L__stack_usage = 0
+ 191 009c AB01      		movw r20,r22
+ 192               	.LVL19:
+ 193               	.LBB20:
+ 194               	.LBB21:
+ 195 009e 61E0      		ldi r22,lo8(1)
+ 196               	.LVL20:
+ 197 00a0 0C94 0000 		jmp mpu6050_readBytes.part.0
+ 198               	.LVL21:
+ 199               	.LBE21:
+ 200               	.LBE20:
+ 201               		.cfi_endproc
+ 202               	.LFE12:
+ 204               	.global	mpu6050_writeBytes
+ 206               	mpu6050_writeBytes:
+ 207               	.LFB13:
+  58:mpu6050.c     ****     return mpu6050_readBytes(regAddr, 1, data);
+  59:mpu6050.c     **** }
+  60:mpu6050.c     **** 
+  61:mpu6050.c     **** /*
+  62:mpu6050.c     ****  * write bytes to chip register
+  63:mpu6050.c     ****  */
+  64:mpu6050.c     **** void mpu6050_writeBytes(uint8_t regAddr, uint8_t length, uint8_t* data) {
+ 208               		.loc 1 64 0
+ 209               		.cfi_startproc
+ 210               	.LVL22:
+ 211               		.loc 1 64 0
+ 212 00a4 EF92      		push r14
+ 213               	.LCFI11:
+ 214               		.cfi_def_cfa_offset 3
+ 215               		.cfi_offset 14, -2
+ 216 00a6 FF92      		push r15
+ 217               	.LCFI12:
+ 218               		.cfi_def_cfa_offset 4
+ 219               		.cfi_offset 15, -3
+ 220 00a8 0F93      		push r16
+ 221               	.LCFI13:
+ 222               		.cfi_def_cfa_offset 5
+ 223               		.cfi_offset 16, -4
+ 224 00aa 1F93      		push r17
+ 225               	.LCFI14:
+ 226               		.cfi_def_cfa_offset 6
+ 227               		.cfi_offset 17, -5
+ 228 00ac CF93      		push r28
+ 229               	.LCFI15:
+ 230               		.cfi_def_cfa_offset 7
+ 231               		.cfi_offset 28, -6
+ 232 00ae DF93      		push r29
+ 233               	.LCFI16:
+ 234               		.cfi_def_cfa_offset 8
+ 235               		.cfi_offset 29, -7
+ 236 00b0 00D0      		rcall .
+ 237               	.LCFI17:
+ 238               		.cfi_def_cfa_offset 10
+ 239 00b2 CDB7      		in r28,__SP_L__
+ 240 00b4 DEB7      		in r29,__SP_H__
+ 241               	.LCFI18:
+ 242               		.cfi_def_cfa_register 28
+ 243               	/* prologue: function */
+ 244               	/* frame size = 2 */
+ 245               	/* stack size = 8 */
+ 246               	.L__stack_usage = 8
+ 247 00b6 082F      		mov r16,r24
+ 248 00b8 162F      		mov r17,r22
+  65:mpu6050.c     **** 	if(length > 0) {
+ 249               		.loc 1 65 0
+ 250 00ba 6623      		tst r22
+ 251 00bc 01F0      		breq .L12
+  66:mpu6050.c     **** 		//write data
+  67:mpu6050.c     **** 		i2c_start(MPU6050_ADDR | I2C_WRITE);
+ 252               		.loc 1 67 0
+ 253 00be 80ED      		ldi r24,lo8(-48)
+ 254               	.LVL23:
+ 255 00c0 4983      		std Y+1,r20
+ 256 00c2 5A83      		std Y+2,r21
+ 257 00c4 0E94 0000 		call i2c_start
+ 258               	.LVL24:
+  68:mpu6050.c     **** 		i2c_write(regAddr); //reg
+ 259               		.loc 1 68 0
+ 260 00c8 802F      		mov r24,r16
+ 261 00ca 0E94 0000 		call i2c_write
+ 262               	.LVL25:
+ 263 00ce 4981      		ldd r20,Y+1
+ 264 00d0 042F      		mov r16,r20
+ 265               	.LVL26:
+ 266               	.LBB22:
+  69:mpu6050.c     **** 		for (uint8_t i = 0; i < length; i++) {
+ 267               		.loc 1 69 0
+ 268 00d2 E42E      		mov r14,r20
+ 269 00d4 5A81      		ldd r21,Y+2
+ 270 00d6 F52E      		mov r15,r21
+ 271               	.LVL27:
+ 272               	.L14:
+ 273 00d8 8E2D      		mov r24,r14
+ 274 00da 801B      		sub r24,r16
+ 275               		.loc 1 69 0 is_stmt 0 discriminator 1
+ 276 00dc 8117      		cp r24,r17
+ 277 00de 00F4      		brsh .L16
+  70:mpu6050.c     **** 			i2c_write((uint8_t) data[i]);
+ 278               		.loc 1 70 0 is_stmt 1 discriminator 2
+ 279 00e0 F701      		movw r30,r14
+ 280 00e2 8191      		ld r24,Z+
+ 281 00e4 7F01      		movw r14,r30
+ 282               	.LVL28:
+ 283 00e6 0E94 0000 		call i2c_write
+ 284               	.LVL29:
+ 285 00ea 00C0      		rjmp .L14
+ 286               	.L16:
+ 287               	/* epilogue start */
+ 288               	.LBE22:
+  71:mpu6050.c     **** 		}
+  72:mpu6050.c     **** 		i2c_stop();
+  73:mpu6050.c     **** 	}
+  74:mpu6050.c     **** }
+ 289               		.loc 1 74 0
+ 290 00ec 0F90      		pop __tmp_reg__
+ 291 00ee 0F90      		pop __tmp_reg__
+ 292 00f0 DF91      		pop r29
+ 293 00f2 CF91      		pop r28
+ 294 00f4 1F91      		pop r17
+ 295               	.LVL30:
+ 296 00f6 0F91      		pop r16
+ 297 00f8 FF90      		pop r15
+ 298 00fa EF90      		pop r14
+ 299               	.LVL31:
+  72:mpu6050.c     **** 		i2c_stop();
+ 300               		.loc 1 72 0
+ 301 00fc 0C94 0000 		jmp i2c_stop
+ 302               	.LVL32:
+ 303               	.L12:
+ 304               	/* epilogue start */
+ 305               		.loc 1 74 0
+ 306 0100 0F90      		pop __tmp_reg__
+ 307 0102 0F90      		pop __tmp_reg__
+ 308 0104 DF91      		pop r29
+ 309 0106 CF91      		pop r28
+ 310 0108 1F91      		pop r17
+ 311               	.LVL33:
+ 312 010a 0F91      		pop r16
+ 313               	.LVL34:
+ 314 010c FF90      		pop r15
+ 315 010e EF90      		pop r14
+ 316 0110 0895      		ret
+ 317               		.cfi_endproc
+ 318               	.LFE13:
+ 320               	.global	mpu6050_writeByte
+ 322               	mpu6050_writeByte:
+ 323               	.LFB14:
+  75:mpu6050.c     **** 
+  76:mpu6050.c     **** /*
+  77:mpu6050.c     ****  * write 1 byte to chip register
+  78:mpu6050.c     ****  */
+  79:mpu6050.c     **** void mpu6050_writeByte(uint8_t regAddr, uint8_t data) {
+ 324               		.loc 1 79 0
+ 325               		.cfi_startproc
+ 326               	.LVL35:
+ 327 0112 CF93      		push r28
+ 328               	.LCFI19:
+ 329               		.cfi_def_cfa_offset 3
+ 330               		.cfi_offset 28, -2
+ 331 0114 DF93      		push r29
+ 332               	.LCFI20:
+ 333               		.cfi_def_cfa_offset 4
+ 334               		.cfi_offset 29, -3
+ 335 0116 1F92      		push __zero_reg__
+ 336               	.LCFI21:
+ 337               		.cfi_def_cfa_offset 5
+ 338 0118 CDB7      		in r28,__SP_L__
+ 339 011a DEB7      		in r29,__SP_H__
+ 340               	.LCFI22:
+ 341               		.cfi_def_cfa_register 28
+ 342               	/* prologue: function */
+ 343               	/* frame size = 1 */
+ 344               	/* stack size = 3 */
+ 345               	.L__stack_usage = 3
+ 346 011c 6983      		std Y+1,r22
+  80:mpu6050.c     ****     return mpu6050_writeBytes(regAddr, 1, &data);
+ 347               		.loc 1 80 0
+ 348 011e AE01      		movw r20,r28
+ 349 0120 4F5F      		subi r20,-1
+ 350 0122 5F4F      		sbci r21,-1
+ 351 0124 61E0      		ldi r22,lo8(1)
+ 352               	.LVL36:
+ 353 0126 0E94 0000 		call mpu6050_writeBytes
+ 354               	.LVL37:
+ 355               	/* epilogue start */
+  81:mpu6050.c     **** }
+ 356               		.loc 1 81 0
+ 357 012a 0F90      		pop __tmp_reg__
+ 358 012c DF91      		pop r29
+ 359 012e CF91      		pop r28
+ 360               	.LVL38:
+ 361 0130 0895      		ret
+ 362               		.cfi_endproc
+ 363               	.LFE14:
+ 366               	mpu6050_writeBits.part.1:
+ 367               	.LFB26:
+  82:mpu6050.c     **** 
+  83:mpu6050.c     **** /*
+  84:mpu6050.c     ****  * read bits from chip register
+  85:mpu6050.c     ****  */
+  86:mpu6050.c     **** int8_t mpu6050_readBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data) {
+  87:mpu6050.c     ****     // 01101001 read byte
+  88:mpu6050.c     ****     // 76543210 bit numbers
+  89:mpu6050.c     ****     //    xxx   args: bitStart=4, length=3
+  90:mpu6050.c     ****     //    010   masked
+  91:mpu6050.c     ****     //   -> 010 shifted
+  92:mpu6050.c     ****     int8_t count = 0;
+  93:mpu6050.c     ****     if(length > 0) {
+  94:mpu6050.c     **** 		uint8_t b;
+  95:mpu6050.c     **** 		if ((count = mpu6050_readByte(regAddr, &b)) != 0) {
+  96:mpu6050.c     **** 			uint8_t mask = ((1 << length) - 1) << (bitStart - length + 1);
+  97:mpu6050.c     **** 			b &= mask;
+  98:mpu6050.c     **** 			b >>= (bitStart - length + 1);
+  99:mpu6050.c     **** 			*data = b;
+ 100:mpu6050.c     **** 		}
+ 101:mpu6050.c     ****     }
+ 102:mpu6050.c     ****     return count;
+ 103:mpu6050.c     **** }
+ 104:mpu6050.c     **** 
+ 105:mpu6050.c     **** /*
+ 106:mpu6050.c     ****  * read 1 bit from chip register
+ 107:mpu6050.c     ****  */
+ 108:mpu6050.c     **** int8_t mpu6050_readBit(uint8_t regAddr, uint8_t bitNum, uint8_t *data) {
+ 109:mpu6050.c     ****     uint8_t b;
+ 110:mpu6050.c     ****     uint8_t count = mpu6050_readByte(regAddr, &b);
+ 111:mpu6050.c     ****     *data = b & (1 << bitNum);
+ 112:mpu6050.c     ****     return count;
+ 113:mpu6050.c     **** }
+ 114:mpu6050.c     **** 
+ 115:mpu6050.c     **** /*
+ 116:mpu6050.c     ****  * write bit/bits to chip register
+ 117:mpu6050.c     ****  */
+ 118:mpu6050.c     **** void mpu6050_writeBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data) {
+ 368               		.loc 1 118 0
+ 369               		.cfi_startproc
+ 370               	.LVL39:
+ 371 0132 0F93      		push r16
+ 372               	.LCFI23:
+ 373               		.cfi_def_cfa_offset 3
+ 374               		.cfi_offset 16, -2
+ 375 0134 1F93      		push r17
+ 376               	.LCFI24:
+ 377               		.cfi_def_cfa_offset 4
+ 378               		.cfi_offset 17, -3
+ 379 0136 CF93      		push r28
+ 380               	.LCFI25:
+ 381               		.cfi_def_cfa_offset 5
+ 382               		.cfi_offset 28, -4
+ 383 0138 DF93      		push r29
+ 384               	.LCFI26:
+ 385               		.cfi_def_cfa_offset 6
+ 386               		.cfi_offset 29, -5
+ 387 013a 00D0      		rcall .
+ 388 013c 1F92      		push __zero_reg__
+ 389               	.LCFI27:
+ 390               		.cfi_def_cfa_offset 9
+ 391 013e CDB7      		in r28,__SP_L__
+ 392 0140 DEB7      		in r29,__SP_H__
+ 393               	.LCFI28:
+ 394               		.cfi_def_cfa_register 28
+ 395               	/* prologue: function */
+ 396               	/* frame size = 3 */
+ 397               	/* stack size = 7 */
+ 398               	.L__stack_usage = 7
+ 399 0142 182F      		mov r17,r24
+ 400 0144 062F      		mov r16,r22
+ 401               	.LBB23:
+ 119:mpu6050.c     ****     //      010 value to write
+ 120:mpu6050.c     ****     // 76543210 bit numbers
+ 121:mpu6050.c     ****     //    xxx   args: bitStart=4, length=3
+ 122:mpu6050.c     ****     // 00011100 mask byte
+ 123:mpu6050.c     ****     // 10101111 original value (sample)
+ 124:mpu6050.c     ****     // 10100011 original & ~mask
+ 125:mpu6050.c     ****     // 10101011 masked | value
+ 126:mpu6050.c     **** 	if(length > 0) {
+ 127:mpu6050.c     **** 		uint8_t b = 0;
+ 402               		.loc 1 127 0
+ 403 0146 1982      		std Y+1,__zero_reg__
+ 128:mpu6050.c     **** 		if (mpu6050_readByte(regAddr, &b) != 0) { //get current data
+ 404               		.loc 1 128 0
+ 405 0148 BE01      		movw r22,r28
+ 406               	.LVL40:
+ 407 014a 6F5F      		subi r22,-1
+ 408 014c 7F4F      		sbci r23,-1
+ 409 014e 2B83      		std Y+3,r18
+ 410 0150 4A83      		std Y+2,r20
+ 411 0152 0E94 0000 		call mpu6050_readByte
+ 412               	.LVL41:
+ 413 0156 2B81      		ldd r18,Y+3
+ 414 0158 4A81      		ldd r20,Y+2
+ 415 015a 8823      		tst r24
+ 416 015c 01F0      		breq .L18
+ 417               	.LBB24:
+ 129:mpu6050.c     **** 			uint8_t mask = ((1 << length) - 1) << (bitStart - length + 1);
+ 418               		.loc 1 129 0
+ 419 015e 602F      		mov r22,r16
+ 420 0160 70E0      		ldi r23,0
+ 421 0162 641B      		sub r22,r20
+ 422 0164 7109      		sbc r23,__zero_reg__
+ 423 0166 6F5F      		subi r22,-1
+ 424 0168 7F4F      		sbci r23,-1
+ 425 016a E1E0      		ldi r30,lo8(1)
+ 426 016c F0E0      		ldi r31,0
+ 427 016e 00C0      		rjmp 2f
+ 428               		1:
+ 429 0170 EE0F      		lsl r30
+ 430 0172 FF1F      		rol r31
+ 431               		2:
+ 432 0174 4A95      		dec r20
+ 433 0176 02F4      		brpl 1b
+ 434 0178 3197      		sbiw r30,1
+ 435 017a 062E      		mov r0,r22
+ 436 017c 00C0      		rjmp 2f
+ 437               		1:
+ 438 017e EE0F      		lsl r30
+ 439               		2:
+ 440 0180 0A94      		dec r0
+ 441 0182 02F4      		brpl 1b
+ 442               	.LVL42:
+ 130:mpu6050.c     **** 			data <<= (bitStart - length + 1); // shift data into correct position
+ 443               		.loc 1 130 0
+ 444 0184 00C0      		rjmp 2f
+ 445               		1:
+ 446 0186 220F      		lsl r18
+ 447               		2:
+ 448 0188 6A95      		dec r22
+ 449 018a 02F4      		brpl 1b
+ 450               	.LVL43:
+ 131:mpu6050.c     **** 			data &= mask; // zero all non-important bits in data
+ 132:mpu6050.c     **** 			b &= ~(mask); // zero all important bits in existing byte
+ 451               		.loc 1 132 0
+ 452 018c 6E2F      		mov r22,r30
+ 453 018e 6095      		com r22
+ 454 0190 8981      		ldd r24,Y+1
+ 455 0192 6823      		and r22,r24
+ 131:mpu6050.c     **** 			data &= mask; // zero all non-important bits in data
+ 456               		.loc 1 131 0
+ 457 0194 E223      		and r30,r18
+ 458               	.LVL44:
+ 133:mpu6050.c     **** 			b |= data; // combine data with existing byte
+ 459               		.loc 1 133 0
+ 460 0196 6E2B      		or r22,r30
+ 461 0198 6983      		std Y+1,r22
+ 134:mpu6050.c     **** 			mpu6050_writeByte(regAddr, b);
+ 462               		.loc 1 134 0
+ 463 019a 812F      		mov r24,r17
+ 464 019c 0E94 0000 		call mpu6050_writeByte
+ 465               	.LVL45:
+ 466               	.L18:
+ 467               	/* epilogue start */
+ 468               	.LBE24:
+ 469               	.LBE23:
+ 135:mpu6050.c     **** 		}
+ 136:mpu6050.c     **** 	}
+ 137:mpu6050.c     **** }
+ 470               		.loc 1 137 0
+ 471 01a0 0F90      		pop __tmp_reg__
+ 472 01a2 0F90      		pop __tmp_reg__
+ 473 01a4 0F90      		pop __tmp_reg__
+ 474 01a6 DF91      		pop r29
+ 475 01a8 CF91      		pop r28
+ 476 01aa 1F91      		pop r17
+ 477               	.LVL46:
+ 478 01ac 0F91      		pop r16
+ 479               	.LVL47:
+ 480 01ae 0895      		ret
+ 481               		.cfi_endproc
+ 482               	.LFE26:
+ 484               	.global	mpu6050_readBits
+ 486               	mpu6050_readBits:
+ 487               	.LFB15:
+  86:mpu6050.c     **** int8_t mpu6050_readBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data) {
+ 488               		.loc 1 86 0
+ 489               		.cfi_startproc
+ 490               	.LVL48:
+ 491 01b0 FF92      		push r15
+ 492               	.LCFI29:
+ 493               		.cfi_def_cfa_offset 3
+ 494               		.cfi_offset 15, -2
+ 495 01b2 0F93      		push r16
+ 496               	.LCFI30:
+ 497               		.cfi_def_cfa_offset 4
+ 498               		.cfi_offset 16, -3
+ 499 01b4 1F93      		push r17
+ 500               	.LCFI31:
+ 501               		.cfi_def_cfa_offset 5
+ 502               		.cfi_offset 17, -4
+ 503 01b6 CF93      		push r28
+ 504               	.LCFI32:
+ 505               		.cfi_def_cfa_offset 6
+ 506               		.cfi_offset 28, -5
+ 507 01b8 DF93      		push r29
+ 508               	.LCFI33:
+ 509               		.cfi_def_cfa_offset 7
+ 510               		.cfi_offset 29, -6
+ 511 01ba 00D0      		rcall .
+ 512               	.LCFI34:
+ 513               		.cfi_def_cfa_offset 9
+ 514 01bc CDB7      		in r28,__SP_L__
+ 515 01be DEB7      		in r29,__SP_H__
+ 516               	.LCFI35:
+ 517               		.cfi_def_cfa_register 28
+ 518               	/* prologue: function */
+ 519               	/* frame size = 2 */
+ 520               	/* stack size = 7 */
+ 521               	.L__stack_usage = 7
+ 522 01c0 F62E      		mov r15,r22
+ 523 01c2 8901      		movw r16,r18
+ 524               	.LVL49:
+  93:mpu6050.c     ****     if(length > 0) {
+ 525               		.loc 1 93 0
+ 526 01c4 4423      		tst r20
+ 527 01c6 01F0      		breq .L26
+ 528               	.LBB25:
+  95:mpu6050.c     **** 		if ((count = mpu6050_readByte(regAddr, &b)) != 0) {
+ 529               		.loc 1 95 0
+ 530 01c8 BE01      		movw r22,r28
+ 531               	.LVL50:
+ 532 01ca 6F5F      		subi r22,-1
+ 533 01cc 7F4F      		sbci r23,-1
+ 534 01ce 4A83      		std Y+2,r20
+ 535 01d0 0E94 0000 		call mpu6050_readByte
+ 536               	.LVL51:
+ 537 01d4 4A81      		ldd r20,Y+2
+ 538 01d6 8823      		tst r24
+ 539 01d8 01F0      		breq .L24
+ 540               	.LBB26:
+  96:mpu6050.c     **** 			uint8_t mask = ((1 << length) - 1) << (bitStart - length + 1);
+ 541               		.loc 1 96 0
+ 542 01da 6F2D      		mov r22,r15
+ 543 01dc 70E0      		ldi r23,0
+ 544 01de 641B      		sub r22,r20
+ 545 01e0 7109      		sbc r23,__zero_reg__
+ 546 01e2 6F5F      		subi r22,-1
+ 547 01e4 7F4F      		sbci r23,-1
+ 548 01e6 E1E0      		ldi r30,lo8(1)
+ 549 01e8 F0E0      		ldi r31,0
+ 550 01ea 00C0      		rjmp 2f
+ 551               		1:
+ 552 01ec EE0F      		lsl r30
+ 553 01ee FF1F      		rol r31
+ 554               		2:
+ 555 01f0 4A95      		dec r20
+ 556 01f2 02F4      		brpl 1b
+ 557 01f4 3197      		sbiw r30,1
+ 558 01f6 062E      		mov r0,r22
+ 559 01f8 00C0      		rjmp 2f
+ 560               		1:
+ 561 01fa EE0F      		lsl r30
+ 562               		2:
+ 563 01fc 0A94      		dec r0
+ 564 01fe 02F4      		brpl 1b
+  97:mpu6050.c     **** 			b &= mask;
+ 565               		.loc 1 97 0
+ 566 0200 4981      		ldd r20,Y+1
+ 567 0202 4E23      		and r20,r30
+  98:mpu6050.c     **** 			b >>= (bitStart - length + 1);
+ 568               		.loc 1 98 0
+ 569 0204 50E0      		ldi r21,0
+ 570 0206 00C0      		rjmp 2f
+ 571               		1:
+ 572 0208 5595      		asr r21
+ 573 020a 4795      		ror r20
+ 574               		2:
+ 575 020c 6A95      		dec r22
+ 576 020e 02F4      		brpl 1b
+ 577 0210 F801      		movw r30,r16
+ 578 0212 4083      		st Z,r20
+ 579 0214 00C0      		rjmp .L24
+ 580               	.LVL52:
+ 581               	.L26:
+ 582               	.LBE26:
+ 583               	.LBE25:
+  92:mpu6050.c     ****     int8_t count = 0;
+ 584               		.loc 1 92 0
+ 585 0216 80E0      		ldi r24,0
+ 586               	.LVL53:
+ 587               	.L24:
+ 588               	/* epilogue start */
+ 103:mpu6050.c     **** }
+ 589               		.loc 1 103 0
+ 590 0218 0F90      		pop __tmp_reg__
+ 591 021a 0F90      		pop __tmp_reg__
+ 592 021c DF91      		pop r29
+ 593 021e CF91      		pop r28
+ 594 0220 1F91      		pop r17
+ 595 0222 0F91      		pop r16
+ 596               	.LVL54:
+ 597 0224 FF90      		pop r15
+ 598               	.LVL55:
+ 599 0226 0895      		ret
+ 600               		.cfi_endproc
+ 601               	.LFE15:
+ 603               	.global	mpu6050_readBit
+ 605               	mpu6050_readBit:
+ 606               	.LFB16:
+ 108:mpu6050.c     **** int8_t mpu6050_readBit(uint8_t regAddr, uint8_t bitNum, uint8_t *data) {
+ 607               		.loc 1 108 0
+ 608               		.cfi_startproc
+ 609               	.LVL56:
+ 610 0228 FF92      		push r15
+ 611               	.LCFI36:
+ 612               		.cfi_def_cfa_offset 3
+ 613               		.cfi_offset 15, -2
+ 614 022a 0F93      		push r16
+ 615               	.LCFI37:
+ 616               		.cfi_def_cfa_offset 4
+ 617               		.cfi_offset 16, -3
+ 618 022c 1F93      		push r17
+ 619               	.LCFI38:
+ 620               		.cfi_def_cfa_offset 5
+ 621               		.cfi_offset 17, -4
+ 622 022e CF93      		push r28
+ 623               	.LCFI39:
+ 624               		.cfi_def_cfa_offset 6
+ 625               		.cfi_offset 28, -5
+ 626 0230 DF93      		push r29
+ 627               	.LCFI40:
+ 628               		.cfi_def_cfa_offset 7
+ 629               		.cfi_offset 29, -6
+ 630 0232 1F92      		push __zero_reg__
+ 631               	.LCFI41:
+ 632               		.cfi_def_cfa_offset 8
+ 633 0234 CDB7      		in r28,__SP_L__
+ 634 0236 DEB7      		in r29,__SP_H__
+ 635               	.LCFI42:
+ 636               		.cfi_def_cfa_register 28
+ 637               	/* prologue: function */
+ 638               	/* frame size = 1 */
+ 639               	/* stack size = 6 */
+ 640               	.L__stack_usage = 6
+ 641 0238 F62E      		mov r15,r22
+ 642 023a 8A01      		movw r16,r20
+ 110:mpu6050.c     ****     uint8_t count = mpu6050_readByte(regAddr, &b);
+ 643               		.loc 1 110 0
+ 644 023c BE01      		movw r22,r28
+ 645               	.LVL57:
+ 646 023e 6F5F      		subi r22,-1
+ 647 0240 7F4F      		sbci r23,-1
+ 648 0242 0E94 0000 		call mpu6050_readByte
+ 649               	.LVL58:
+ 111:mpu6050.c     ****     *data = b & (1 << bitNum);
+ 650               		.loc 1 111 0
+ 651 0246 21E0      		ldi r18,lo8(1)
+ 652 0248 30E0      		ldi r19,0
+ 653 024a 00C0      		rjmp 2f
+ 654               		1:
+ 655 024c 220F      		lsl r18
+ 656               		2:
+ 657 024e FA94      		dec r15
+ 658 0250 02F4      		brpl 1b
+ 659 0252 9981      		ldd r25,Y+1
+ 660 0254 9223      		and r25,r18
+ 661 0256 F801      		movw r30,r16
+ 662 0258 9083      		st Z,r25
+ 663               	/* epilogue start */
+ 113:mpu6050.c     **** }
+ 664               		.loc 1 113 0
+ 665 025a 0F90      		pop __tmp_reg__
+ 666 025c DF91      		pop r29
+ 667 025e CF91      		pop r28
+ 668 0260 1F91      		pop r17
+ 669 0262 0F91      		pop r16
+ 670               	.LVL59:
+ 671 0264 FF90      		pop r15
+ 672               	.LVL60:
+ 673 0266 0895      		ret
+ 674               		.cfi_endproc
+ 675               	.LFE16:
+ 677               	.global	mpu6050_writeBits
+ 679               	mpu6050_writeBits:
+ 680               	.LFB17:
+ 118:mpu6050.c     **** void mpu6050_writeBits(uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data) {
+ 681               		.loc 1 118 0
+ 682               		.cfi_startproc
+ 683               	.LVL61:
+ 684               	/* prologue: function */
+ 685               	/* frame size = 0 */
+ 686               	/* stack size = 0 */
+ 687               	.L__stack_usage = 0
+ 126:mpu6050.c     **** 	if(length > 0) {
+ 688               		.loc 1 126 0
+ 689 0268 4111      		cpse r20,__zero_reg__
+ 690 026a 0C94 0000 		jmp mpu6050_writeBits.part.1
+ 691               	.LVL62:
+ 692               	.L31:
+ 693 026e 0895      		ret
+ 694               		.cfi_endproc
+ 695               	.LFE17:
+ 697               	.global	mpu6050_writeBit
+ 699               	mpu6050_writeBit:
+ 700               	.LFB18:
+ 138:mpu6050.c     **** 
+ 139:mpu6050.c     **** /*
+ 140:mpu6050.c     ****  * write one bit to chip register
+ 141:mpu6050.c     ****  */
+ 142:mpu6050.c     **** void mpu6050_writeBit(uint8_t regAddr, uint8_t bitNum, uint8_t data) {
+ 701               		.loc 1 142 0
+ 702               		.cfi_startproc
+ 703               	.LVL63:
+ 704 0270 0F93      		push r16
+ 705               	.LCFI43:
+ 706               		.cfi_def_cfa_offset 3
+ 707               		.cfi_offset 16, -2
+ 708 0272 1F93      		push r17
+ 709               	.LCFI44:
+ 710               		.cfi_def_cfa_offset 4
+ 711               		.cfi_offset 17, -3
+ 712 0274 CF93      		push r28
+ 713               	.LCFI45:
+ 714               		.cfi_def_cfa_offset 5
+ 715               		.cfi_offset 28, -4
+ 716 0276 DF93      		push r29
+ 717               	.LCFI46:
+ 718               		.cfi_def_cfa_offset 6
+ 719               		.cfi_offset 29, -5
+ 720 0278 00D0      		rcall .
+ 721               	.LCFI47:
+ 722               		.cfi_def_cfa_offset 8
+ 723 027a CDB7      		in r28,__SP_L__
+ 724 027c DEB7      		in r29,__SP_H__
+ 725               	.LCFI48:
+ 726               		.cfi_def_cfa_register 28
+ 727               	/* prologue: function */
+ 728               	/* frame size = 2 */
+ 729               	/* stack size = 6 */
+ 730               	.L__stack_usage = 6
+ 731 027e 182F      		mov r17,r24
+ 732 0280 062F      		mov r16,r22
+ 143:mpu6050.c     ****     uint8_t b;
+ 144:mpu6050.c     ****     mpu6050_readByte(regAddr, &b);
+ 733               		.loc 1 144 0
+ 734 0282 BE01      		movw r22,r28
+ 735               	.LVL64:
+ 736 0284 6F5F      		subi r22,-1
+ 737 0286 7F4F      		sbci r23,-1
+ 738 0288 4A83      		std Y+2,r20
+ 739 028a 0E94 0000 		call mpu6050_readByte
+ 740               	.LVL65:
+ 741 028e 8981      		ldd r24,Y+1
+ 145:mpu6050.c     ****     b = (data != 0) ? (b | (1 << bitNum)) : (b & ~(1 << bitNum));
+ 742               		.loc 1 145 0
+ 743 0290 4A81      		ldd r20,Y+2
+ 744 0292 21E0      		ldi r18,lo8(1)
+ 745 0294 30E0      		ldi r19,0
+ 746 0296 002E      		mov r0,r16
+ 747 0298 00C0      		rjmp 2f
+ 748               		1:
+ 749 029a 220F      		lsl r18
+ 750               		2:
+ 751 029c 0A94      		dec r0
+ 752 029e 02F4      		brpl 1b
+ 753 02a0 4423      		tst r20
+ 754 02a2 01F0      		breq .L34
+ 755               		.loc 1 145 0 is_stmt 0 discriminator 1
+ 756 02a4 682F      		mov r22,r24
+ 757 02a6 622B      		or r22,r18
+ 758 02a8 00C0      		rjmp .L35
+ 759               	.L34:
+ 760               		.loc 1 145 0 discriminator 2
+ 761 02aa 622F      		mov r22,r18
+ 762 02ac 6095      		com r22
+ 763 02ae 6823      		and r22,r24
+ 764               	.L35:
+ 765               		.loc 1 145 0 discriminator 3
+ 766 02b0 6983      		std Y+1,r22
+ 146:mpu6050.c     ****     mpu6050_writeByte(regAddr, b);
+ 767               		.loc 1 146 0 is_stmt 1 discriminator 3
+ 768 02b2 812F      		mov r24,r17
+ 769 02b4 0E94 0000 		call mpu6050_writeByte
+ 770               	.LVL66:
+ 771               	/* epilogue start */
+ 147:mpu6050.c     **** }
+ 772               		.loc 1 147 0 discriminator 3
+ 773 02b8 0F90      		pop __tmp_reg__
+ 774 02ba 0F90      		pop __tmp_reg__
+ 775 02bc DF91      		pop r29
+ 776 02be CF91      		pop r28
+ 777 02c0 1F91      		pop r17
+ 778               	.LVL67:
+ 779 02c2 0F91      		pop r16
+ 780               	.LVL68:
+ 781 02c4 0895      		ret
+ 782               		.cfi_endproc
+ 783               	.LFE18:
+ 785               	.global	mpu6050_setSleepDisabled
+ 787               	mpu6050_setSleepDisabled:
+ 788               	.LFB19:
+ 148:mpu6050.c     **** 
+ 149:mpu6050.c     **** #if MPU6050_GETATTITUDE == 2
+ 150:mpu6050.c     **** /*
+ 151:mpu6050.c     ****  * write word/words to chip register
+ 152:mpu6050.c     ****  */
+ 153:mpu6050.c     **** void mpu6050_writeWords(uint8_t regAddr, uint8_t length, uint16_t* data) {
+ 154:mpu6050.c     **** 	if(length > 0) {
+ 155:mpu6050.c     **** 		uint8_t i = 0;
+ 156:mpu6050.c     **** 		//write data
+ 157:mpu6050.c     **** 		i2c_start(MPU6050_ADDR | I2C_WRITE);
+ 158:mpu6050.c     **** 		i2c_write(regAddr); //reg
+ 159:mpu6050.c     **** 		for (i = 0; i < length * 2; i++) {
+ 160:mpu6050.c     **** 			i2c_write((uint8_t)(data[i++] >> 8)); // send MSB
+ 161:mpu6050.c     **** 			i2c_write((uint8_t)data[i]);          // send LSB
+ 162:mpu6050.c     **** 		}
+ 163:mpu6050.c     **** 		i2c_stop();
+ 164:mpu6050.c     **** 	}
+ 165:mpu6050.c     **** }
+ 166:mpu6050.c     **** 
+ 167:mpu6050.c     **** /*
+ 168:mpu6050.c     ****  * set a chip memory bank
+ 169:mpu6050.c     ****  */
+ 170:mpu6050.c     **** void mpu6050_setMemoryBank(uint8_t bank, uint8_t prefetchEnabled, uint8_t userBank) {
+ 171:mpu6050.c     ****     bank &= 0x1F;
+ 172:mpu6050.c     ****     if (userBank) bank |= 0x20;
+ 173:mpu6050.c     ****     if (prefetchEnabled) bank |= 0x40;
+ 174:mpu6050.c     ****     mpu6050_writeByte(MPU6050_RA_BANK_SEL, bank);
+ 175:mpu6050.c     **** }
+ 176:mpu6050.c     **** 
+ 177:mpu6050.c     **** /*
+ 178:mpu6050.c     ****  * set memory start address
+ 179:mpu6050.c     ****  */
+ 180:mpu6050.c     **** void mpu6050_setMemoryStartAddress(uint8_t address) {
+ 181:mpu6050.c     **** 	mpu6050_writeByte(MPU6050_RA_MEM_START_ADDR, address);
+ 182:mpu6050.c     **** }
+ 183:mpu6050.c     **** 
+ 184:mpu6050.c     **** /*
+ 185:mpu6050.c     ****  * read a memory block
+ 186:mpu6050.c     ****  */
+ 187:mpu6050.c     **** void mpu6050_readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address) {
+ 188:mpu6050.c     **** 	mpu6050_setMemoryBank(bank, 0, 0);
+ 189:mpu6050.c     **** 	mpu6050_setMemoryStartAddress(address);
+ 190:mpu6050.c     ****     uint8_t chunkSize;
+ 191:mpu6050.c     ****     for (uint16_t i = 0; i < dataSize;) {
+ 192:mpu6050.c     ****         // determine correct chunk size according to bank position and data size
+ 193:mpu6050.c     ****         chunkSize = MPU6050_DMP_MEMORY_CHUNK_SIZE;
+ 194:mpu6050.c     **** 
+ 195:mpu6050.c     ****         // make sure we don't go past the data size
+ 196:mpu6050.c     ****         if (i + chunkSize > dataSize) chunkSize = dataSize - i;
+ 197:mpu6050.c     **** 
+ 198:mpu6050.c     ****         // make sure this chunk doesn't go past the bank boundary (256 bytes)
+ 199:mpu6050.c     ****         if (chunkSize > 256 - address) chunkSize = 256 - address;
+ 200:mpu6050.c     **** 
+ 201:mpu6050.c     ****         // read the chunk of data as specified
+ 202:mpu6050.c     ****         mpu6050_readBytes(MPU6050_RA_MEM_R_W, chunkSize, data + i);
+ 203:mpu6050.c     **** 
+ 204:mpu6050.c     ****         // increase byte index by [chunkSize]
+ 205:mpu6050.c     ****         i += chunkSize;
+ 206:mpu6050.c     **** 
+ 207:mpu6050.c     ****         // uint8_t automatically wraps to 0 at 256
+ 208:mpu6050.c     ****         address += chunkSize;
+ 209:mpu6050.c     **** 
+ 210:mpu6050.c     ****         // if we aren't done, update bank (if necessary) and address
+ 211:mpu6050.c     ****         if (i < dataSize) {
+ 212:mpu6050.c     ****             if (address == 0) bank++;
+ 213:mpu6050.c     ****             mpu6050_setMemoryBank(bank, 0, 0);
+ 214:mpu6050.c     ****             mpu6050_setMemoryStartAddress(address);
+ 215:mpu6050.c     ****         }
+ 216:mpu6050.c     ****     }
+ 217:mpu6050.c     **** }
+ 218:mpu6050.c     **** 
+ 219:mpu6050.c     **** /*
+ 220:mpu6050.c     ****  * write a memory block
+ 221:mpu6050.c     ****  */
+ 222:mpu6050.c     **** uint8_t mpu6050_writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t addr
+ 223:mpu6050.c     **** 	mpu6050_setMemoryBank(bank, 0, 0);
+ 224:mpu6050.c     **** 	mpu6050_setMemoryStartAddress(address);
+ 225:mpu6050.c     ****     uint8_t chunkSize;
+ 226:mpu6050.c     ****     uint8_t *verifyBuffer = 0;
+ 227:mpu6050.c     ****     uint8_t *progBuffer = 0;
+ 228:mpu6050.c     ****     uint16_t i;
+ 229:mpu6050.c     ****     uint8_t j;
+ 230:mpu6050.c     ****     if (verify) verifyBuffer = (uint8_t *)malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
+ 231:mpu6050.c     ****     if (useProgMem) progBuffer = (uint8_t *)malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
+ 232:mpu6050.c     ****     for (i = 0; i < dataSize;) {
+ 233:mpu6050.c     ****         // determine correct chunk size according to bank position and data size
+ 234:mpu6050.c     ****         chunkSize = MPU6050_DMP_MEMORY_CHUNK_SIZE;
+ 235:mpu6050.c     **** 
+ 236:mpu6050.c     ****         // make sure we don't go past the data size
+ 237:mpu6050.c     ****         if (i + chunkSize > dataSize) chunkSize = dataSize - i;
+ 238:mpu6050.c     **** 
+ 239:mpu6050.c     ****         // make sure this chunk doesn't go past the bank boundary (256 bytes)
+ 240:mpu6050.c     ****         if (chunkSize > 256 - address) chunkSize = 256 - address;
+ 241:mpu6050.c     **** 
+ 242:mpu6050.c     ****         if (useProgMem) {
+ 243:mpu6050.c     ****             // write the chunk of data as specified
+ 244:mpu6050.c     ****             for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
+ 245:mpu6050.c     ****         } else {
+ 246:mpu6050.c     ****             // write the chunk of data as specified
+ 247:mpu6050.c     ****             progBuffer = (uint8_t *)data + i;
+ 248:mpu6050.c     ****         }
+ 249:mpu6050.c     **** 
+ 250:mpu6050.c     ****         mpu6050_writeBytes(MPU6050_RA_MEM_R_W, chunkSize, progBuffer);
+ 251:mpu6050.c     **** 
+ 252:mpu6050.c     ****         // verify data if needed
+ 253:mpu6050.c     ****         if (verify && verifyBuffer) {
+ 254:mpu6050.c     ****         	mpu6050_setMemoryBank(bank, 0, 0);
+ 255:mpu6050.c     ****             mpu6050_setMemoryStartAddress(address);
+ 256:mpu6050.c     ****             mpu6050_readBytes(MPU6050_RA_MEM_R_W, chunkSize, verifyBuffer);
+ 257:mpu6050.c     ****             if (memcmp(progBuffer, verifyBuffer, chunkSize) != 0) {
+ 258:mpu6050.c     ****                 free(verifyBuffer);
+ 259:mpu6050.c     ****                 if (useProgMem) free(progBuffer);
+ 260:mpu6050.c     ****                 return 0; // uh oh.
+ 261:mpu6050.c     ****             }
+ 262:mpu6050.c     ****         }
+ 263:mpu6050.c     **** 
+ 264:mpu6050.c     ****         // increase byte index by [chunkSize]
+ 265:mpu6050.c     ****         i += chunkSize;
+ 266:mpu6050.c     **** 
+ 267:mpu6050.c     ****         // uint8_t automatically wraps to 0 at 256
+ 268:mpu6050.c     ****         address += chunkSize;
+ 269:mpu6050.c     **** 
+ 270:mpu6050.c     ****         // if we aren't done, update bank (if necessary) and address
+ 271:mpu6050.c     ****         if (i < dataSize) {
+ 272:mpu6050.c     ****             if (address == 0) bank++;
+ 273:mpu6050.c     ****             mpu6050_setMemoryBank(bank, 0, 0);
+ 274:mpu6050.c     ****             mpu6050_setMemoryStartAddress(address);
+ 275:mpu6050.c     ****         }
+ 276:mpu6050.c     ****     }
+ 277:mpu6050.c     ****     if (verify) free(verifyBuffer);
+ 278:mpu6050.c     ****     if (useProgMem) free(progBuffer);
+ 279:mpu6050.c     ****     return 1;
+ 280:mpu6050.c     **** }
+ 281:mpu6050.c     **** 
+ 282:mpu6050.c     **** /*
+ 283:mpu6050.c     ****  * write a dmp configuration set
+ 284:mpu6050.c     ****  */
+ 285:mpu6050.c     **** uint8_t mpu6050_writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, uint8_t useProgMem
+ 286:mpu6050.c     ****     uint8_t *progBuffer = 0;
+ 287:mpu6050.c     ****     uint8_t success, special;
+ 288:mpu6050.c     ****     uint16_t i, j;
+ 289:mpu6050.c     ****     if (useProgMem) {
+ 290:mpu6050.c     ****         progBuffer = (uint8_t *)malloc(8); // assume 8-byte blocks, realloc later if necessary
+ 291:mpu6050.c     ****     }
+ 292:mpu6050.c     **** 
+ 293:mpu6050.c     ****     // config set data is a long string of blocks with the following structure:
+ 294:mpu6050.c     ****     // [bank] [offset] [length] [byte[0], byte[1], ..., byte[length]]
+ 295:mpu6050.c     ****     uint8_t bank, offset, length;
+ 296:mpu6050.c     ****     for (i = 0; i < dataSize;) {
+ 297:mpu6050.c     ****         if (useProgMem) {
+ 298:mpu6050.c     ****             bank = pgm_read_byte(data + i++);
+ 299:mpu6050.c     ****             offset = pgm_read_byte(data + i++);
+ 300:mpu6050.c     ****             length = pgm_read_byte(data + i++);
+ 301:mpu6050.c     ****         } else {
+ 302:mpu6050.c     ****             bank = data[i++];
+ 303:mpu6050.c     ****             offset = data[i++];
+ 304:mpu6050.c     ****             length = data[i++];
+ 305:mpu6050.c     ****         }
+ 306:mpu6050.c     **** 
+ 307:mpu6050.c     ****         // write data or perform special action
+ 308:mpu6050.c     ****         if (length > 0) {
+ 309:mpu6050.c     ****             // regular block of data to write
+ 310:mpu6050.c     ****             if (useProgMem) {
+ 311:mpu6050.c     ****                 if (sizeof(progBuffer) < length) progBuffer = (uint8_t *)realloc(progBuffer, length
+ 312:mpu6050.c     ****                 for (j = 0; j < length; j++) progBuffer[j] = pgm_read_byte(data + i + j);
+ 313:mpu6050.c     ****             } else {
+ 314:mpu6050.c     ****                 progBuffer = (uint8_t *)data + i;
+ 315:mpu6050.c     ****             }
+ 316:mpu6050.c     ****             success = mpu6050_writeMemoryBlock(progBuffer, length, bank, offset, 1, 0);
+ 317:mpu6050.c     ****             i += length;
+ 318:mpu6050.c     ****         } else {
+ 319:mpu6050.c     ****             // special instruction
+ 320:mpu6050.c     ****             // NOTE: this kind of behavior (what and when to do certain things)
+ 321:mpu6050.c     ****             // is totally undocumented. This code is in here based on observed
+ 322:mpu6050.c     ****             // behavior only, and exactly why (or even whether) it has to be here
+ 323:mpu6050.c     ****             // is anybody's guess for now.
+ 324:mpu6050.c     ****             if (useProgMem) {
+ 325:mpu6050.c     ****                 special = pgm_read_byte(data + i++);
+ 326:mpu6050.c     ****             } else {
+ 327:mpu6050.c     ****                 special = data[i++];
+ 328:mpu6050.c     ****             }
+ 329:mpu6050.c     ****             if (special == 0x01) {
+ 330:mpu6050.c     ****                 // enable DMP-related interrupts
+ 331:mpu6050.c     **** 
+ 332:mpu6050.c     ****             	//mpu6050_writeBit(MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_ZMOT_BIT, 1); //setIntZero
+ 333:mpu6050.c     ****             	//mpu6050_writeBit(MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_FIFO_OFLOW_BIT, 1); //setI
+ 334:mpu6050.c     ****             	//mpu6050_writeBit(MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_DMP_INT_BIT, 1); //setIntD
+ 335:mpu6050.c     ****             	mpu6050_writeByte(MPU6050_RA_INT_ENABLE, 0x32);  // single operation
+ 336:mpu6050.c     **** 
+ 337:mpu6050.c     ****                 success = 1;
+ 338:mpu6050.c     ****             } else {
+ 339:mpu6050.c     ****                 // unknown special command
+ 340:mpu6050.c     ****                 success = 0;
+ 341:mpu6050.c     ****             }
+ 342:mpu6050.c     ****         }
+ 343:mpu6050.c     **** 
+ 344:mpu6050.c     ****         if (!success) {
+ 345:mpu6050.c     ****             if (useProgMem) free(progBuffer);
+ 346:mpu6050.c     ****             return 0; // uh oh
+ 347:mpu6050.c     ****         }
+ 348:mpu6050.c     ****     }
+ 349:mpu6050.c     ****     if (useProgMem) free(progBuffer);
+ 350:mpu6050.c     ****     return 1;
+ 351:mpu6050.c     **** }
+ 352:mpu6050.c     **** 
+ 353:mpu6050.c     **** /*
+ 354:mpu6050.c     ****  * get the fifo count
+ 355:mpu6050.c     ****  */
+ 356:mpu6050.c     **** uint16_t mpu6050_getFIFOCount(void) {
+ 357:mpu6050.c     **** 	mpu6050_readBytes(MPU6050_RA_FIFO_COUNTH, 2, (uint8_t *)buffer);
+ 358:mpu6050.c     ****     return (((uint16_t)buffer[0]) << 8) | buffer[1];
+ 359:mpu6050.c     **** }
+ 360:mpu6050.c     **** 
+ 361:mpu6050.c     **** /*
+ 362:mpu6050.c     ****  * read fifo bytes
+ 363:mpu6050.c     ****  */
+ 364:mpu6050.c     **** void mpu6050_getFIFOBytes(uint8_t *data, uint8_t length) {
+ 365:mpu6050.c     **** 	mpu6050_readBytes(MPU6050_RA_FIFO_R_W, length, data);
+ 366:mpu6050.c     **** }
+ 367:mpu6050.c     **** 
+ 368:mpu6050.c     **** /*
+ 369:mpu6050.c     ****  * get the interrupt status
+ 370:mpu6050.c     ****  */
+ 371:mpu6050.c     **** uint8_t mpu6050_getIntStatus(void) {
+ 372:mpu6050.c     **** 	mpu6050_readByte(MPU6050_RA_INT_STATUS, (uint8_t *)buffer);
+ 373:mpu6050.c     ****     return buffer[0];
+ 374:mpu6050.c     **** }
+ 375:mpu6050.c     **** 
+ 376:mpu6050.c     **** /*
+ 377:mpu6050.c     ****  * reset fifo
+ 378:mpu6050.c     ****  */
+ 379:mpu6050.c     **** void mpu6050_resetFIFO(void) {
+ 380:mpu6050.c     **** 	mpu6050_writeBit(MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_RESET_BIT, 1);
+ 381:mpu6050.c     **** }
+ 382:mpu6050.c     **** 
+ 383:mpu6050.c     **** /*
+ 384:mpu6050.c     ****  * get gyro offset X
+ 385:mpu6050.c     ****  */
+ 386:mpu6050.c     **** int8_t mpu6050_getXGyroOffset(void) {
+ 387:mpu6050.c     **** 	mpu6050_readBits(MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, (uint8_t 
+ 388:mpu6050.c     ****     return buffer[0];
+ 389:mpu6050.c     **** }
+ 390:mpu6050.c     **** 
+ 391:mpu6050.c     **** /*
+ 392:mpu6050.c     ****  * set gyro offset X
+ 393:mpu6050.c     ****  */
+ 394:mpu6050.c     **** void mpu6050_setXGyroOffset(int8_t offset) {
+ 395:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
+ 396:mpu6050.c     **** }
+ 397:mpu6050.c     **** 
+ 398:mpu6050.c     **** /*
+ 399:mpu6050.c     ****  * get gyro offset Y
+ 400:mpu6050.c     ****  */
+ 401:mpu6050.c     **** int8_t mpu6050_getYGyroOffset(void) {
+ 402:mpu6050.c     **** 	mpu6050_readBits(MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, (uint8_t 
+ 403:mpu6050.c     ****     return buffer[0];
+ 404:mpu6050.c     **** }
+ 405:mpu6050.c     **** 
+ 406:mpu6050.c     **** /*
+ 407:mpu6050.c     ****  * set gyro offset Y
+ 408:mpu6050.c     ****  */
+ 409:mpu6050.c     **** void mpu6050_setYGyroOffset(int8_t offset) {
+ 410:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
+ 411:mpu6050.c     **** }
+ 412:mpu6050.c     **** 
+ 413:mpu6050.c     **** /*
+ 414:mpu6050.c     ****  * get gyro offset Z
+ 415:mpu6050.c     ****  */
+ 416:mpu6050.c     **** int8_t mpu6050_getZGyroOffset(void) {
+ 417:mpu6050.c     **** 	mpu6050_readBits(MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, (uint8_t 
+ 418:mpu6050.c     ****     return buffer[0];
+ 419:mpu6050.c     **** }
+ 420:mpu6050.c     **** 
+ 421:mpu6050.c     **** /*
+ 422:mpu6050.c     ****  * set gyro offset Z
+ 423:mpu6050.c     ****  */
+ 424:mpu6050.c     **** void mpu6050_setZGyroOffset(int8_t offset) {
+ 425:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
+ 426:mpu6050.c     **** }
+ 427:mpu6050.c     **** #endif
+ 428:mpu6050.c     **** 
+ 429:mpu6050.c     **** /*
+ 430:mpu6050.c     ****  * set sleep disabled
+ 431:mpu6050.c     ****  */
+ 432:mpu6050.c     **** void mpu6050_setSleepDisabled() {
+ 789               		.loc 1 432 0
+ 790               		.cfi_startproc
+ 791               	/* prologue: function */
+ 792               	/* frame size = 0 */
+ 793               	/* stack size = 0 */
+ 794               	.L__stack_usage = 0
+ 433:mpu6050.c     **** 	mpu6050_writeBit(MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, 0);
+ 795               		.loc 1 433 0
+ 796 02c6 40E0      		ldi r20,0
+ 797 02c8 66E0      		ldi r22,lo8(6)
+ 798 02ca 8BE6      		ldi r24,lo8(107)
+ 799 02cc 0C94 0000 		jmp mpu6050_writeBit
+ 800               	.LVL69:
+ 801               		.cfi_endproc
+ 802               	.LFE19:
+ 804               	.global	mpu6050_setSleepEnabled
+ 806               	mpu6050_setSleepEnabled:
+ 807               	.LFB20:
+ 434:mpu6050.c     **** }
+ 435:mpu6050.c     **** 
+ 436:mpu6050.c     **** /*
+ 437:mpu6050.c     ****  * set sleep enabled
+ 438:mpu6050.c     ****  */
+ 439:mpu6050.c     **** void mpu6050_setSleepEnabled(void) {
+ 808               		.loc 1 439 0
+ 809               		.cfi_startproc
+ 810               	/* prologue: function */
+ 811               	/* frame size = 0 */
+ 812               	/* stack size = 0 */
+ 813               	.L__stack_usage = 0
+ 440:mpu6050.c     **** 	mpu6050_writeBit(MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, 1);
+ 814               		.loc 1 440 0
+ 815 02d0 41E0      		ldi r20,lo8(1)
+ 816 02d2 66E0      		ldi r22,lo8(6)
+ 817 02d4 8BE6      		ldi r24,lo8(107)
+ 818 02d6 0C94 0000 		jmp mpu6050_writeBit
+ 819               	.LVL70:
+ 820               		.cfi_endproc
+ 821               	.LFE20:
+ 823               	.global	mpu6050_testConnection
+ 825               	mpu6050_testConnection:
+ 826               	.LFB21:
+ 441:mpu6050.c     **** }
+ 442:mpu6050.c     **** 
+ 443:mpu6050.c     **** 
+ 444:mpu6050.c     **** /*
+ 445:mpu6050.c     ****  * test connectino to chip
+ 446:mpu6050.c     ****  */
+ 447:mpu6050.c     **** uint8_t mpu6050_testConnection(void) {
+ 827               		.loc 1 447 0
+ 828               		.cfi_startproc
+ 829               	/* prologue: function */
+ 830               	/* frame size = 0 */
+ 831               	/* stack size = 0 */
+ 832               	.L__stack_usage = 0
+ 448:mpu6050.c     **** 	mpu6050_readBits(MPU6050_RA_WHO_AM_I, MPU6050_WHO_AM_I_BIT, MPU6050_WHO_AM_I_LENGTH, (uint8_t *)bu
+ 833               		.loc 1 448 0
+ 834 02da 20E0      		ldi r18,lo8(buffer)
+ 835 02dc 30E0      		ldi r19,hi8(buffer)
+ 836 02de 46E0      		ldi r20,lo8(6)
+ 837 02e0 66E0      		ldi r22,lo8(6)
+ 838 02e2 85E7      		ldi r24,lo8(117)
+ 839 02e4 0E94 0000 		call mpu6050_readBits
+ 840               	.LVL71:
+ 449:mpu6050.c     **** 	if(buffer[0] == 0x34)
+ 841               		.loc 1 449 0
+ 842 02e8 9091 0000 		lds r25,buffer
+ 843 02ec 81E0      		ldi r24,lo8(1)
+ 844 02ee 9433      		cpi r25,lo8(52)
+ 845 02f0 01F0      		breq .L39
+ 846 02f2 80E0      		ldi r24,0
+ 847               	.L39:
+ 450:mpu6050.c     **** 		return 1;
+ 451:mpu6050.c     **** 	else
+ 452:mpu6050.c     **** 		return 0;
+ 453:mpu6050.c     **** }
+ 848               		.loc 1 453 0
+ 849 02f4 0895      		ret
+ 850               		.cfi_endproc
+ 851               	.LFE21:
+ 853               	.global	mpu6050_init
+ 855               	mpu6050_init:
+ 856               	.LFB22:
+ 454:mpu6050.c     **** 
+ 455:mpu6050.c     **** /*
+ 456:mpu6050.c     ****  * initialize the accel and gyro
+ 457:mpu6050.c     ****  */
+ 458:mpu6050.c     **** void mpu6050_init(void) {
+ 857               		.loc 1 458 0
+ 858               		.cfi_startproc
+ 859               	/* prologue: function */
+ 860               	/* frame size = 0 */
+ 861               	/* stack size = 0 */
+ 862               	.L__stack_usage = 0
+ 863               	.LVL72:
+ 864               	.LBB39:
+ 865               	.LBB40:
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 866               		.loc 2 163 0
+ 867 02f6 2FEF      		ldi r18,lo8(319999)
+ 868 02f8 81EE      		ldi r24,hi8(319999)
+ 869 02fa 94E0      		ldi r25,hlo8(319999)
+ 870 02fc 2150      		1: subi r18,1
+ 871 02fe 8040      		sbci r24,0
+ 872 0300 9040      		sbci r25,0
+ 873 0302 01F4      		brne 1b
+ 874 0304 00C0      		rjmp .
+ 875 0306 0000      		nop
+ 876               	.LBE40:
+ 877               	.LBE39:
+ 459:mpu6050.c     **** 	//allow mpu6050 chip clocks to start up
+ 460:mpu6050.c     **** 	_delay_ms(100);
+ 461:mpu6050.c     **** 
+ 462:mpu6050.c     **** 	//set sleep disabled
+ 463:mpu6050.c     **** 	mpu6050_setSleepDisabled();
+ 878               		.loc 1 463 0
+ 879 0308 0E94 0000 		call mpu6050_setSleepDisabled
+ 880               	.LVL73:
+ 881               	.LBB41:
+ 882               	.LBB42:
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 883               		.loc 2 163 0
+ 884 030c 8FE3      		ldi r24,lo8(-25537)
+ 885 030e 9CE9      		ldi r25,hi8(-25537)
+ 886 0310 0197      		1: sbiw r24,1
+ 887 0312 01F4      		brne 1b
+ 888 0314 00C0      		rjmp .
+ 889 0316 0000      		nop
+ 890               	.LVL74:
+ 891               	.LBE42:
+ 892               	.LBE41:
+ 893               	.LBB43:
+ 894               	.LBB44:
+ 895 0318 21E0      		ldi r18,lo8(1)
+ 896 031a 43E0      		ldi r20,lo8(3)
+ 897 031c 62E0      		ldi r22,lo8(2)
+ 898 031e 8BE6      		ldi r24,lo8(107)
+ 899 0320 0E94 0000 		call mpu6050_writeBits.part.1
+ 900               	.LVL75:
+ 901               	.LBE44:
+ 902               	.LBE43:
+ 903               	.LBB45:
+ 904               	.LBB46:
+ 905 0324 23E0      		ldi r18,lo8(3)
+ 906 0326 43E0      		ldi r20,lo8(3)
+ 907 0328 62E0      		ldi r22,lo8(2)
+ 908 032a 8AE1      		ldi r24,lo8(26)
+ 909 032c 0E94 0000 		call mpu6050_writeBits.part.1
+ 910               	.LVL76:
+ 911               	.LBE46:
+ 912               	.LBE45:
+ 464:mpu6050.c     **** 	//wake up delay needed sleep disabled
+ 465:mpu6050.c     **** 	_delay_ms(10);
+ 466:mpu6050.c     **** 
+ 467:mpu6050.c     **** 	//set clock source
+ 468:mpu6050.c     **** 	//  it is highly recommended that the device be configured to use one of the gyroscopes (or an ext
+ 469:mpu6050.c     **** 	//  as the clock reference for improved stability
+ 470:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, MPU6
+ 471:mpu6050.c     **** 	//set DLPF bandwidth to 42Hz
+ 472:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, MPU605
+ 473:mpu6050.c     ****     //set sampe rate
+ 474:mpu6050.c     **** 	mpu6050_writeByte(MPU6050_RA_SMPLRT_DIV, 4); //1khz / (1 + 4) = 200Hz
+ 913               		.loc 1 474 0
+ 914 0330 64E0      		ldi r22,lo8(4)
+ 915 0332 89E1      		ldi r24,lo8(25)
+ 916 0334 0E94 0000 		call mpu6050_writeByte
+ 917               	.LVL77:
+ 918               	.LBB47:
+ 919               	.LBB48:
+ 920 0338 20E0      		ldi r18,0
+ 921 033a 42E0      		ldi r20,lo8(2)
+ 922 033c 64E0      		ldi r22,lo8(4)
+ 923 033e 8BE1      		ldi r24,lo8(27)
+ 924 0340 0E94 0000 		call mpu6050_writeBits.part.1
+ 925               	.LVL78:
+ 926               	.LBE48:
+ 927               	.LBE47:
+ 928               	.LBB49:
+ 929               	.LBB50:
+ 930 0344 20E0      		ldi r18,0
+ 931 0346 42E0      		ldi r20,lo8(2)
+ 932 0348 64E0      		ldi r22,lo8(4)
+ 933 034a 8CE1      		ldi r24,lo8(28)
+ 934 034c 0C94 0000 		jmp mpu6050_writeBits.part.1
+ 935               	.LVL79:
+ 936               	.LBE50:
+ 937               	.LBE49:
+ 938               		.cfi_endproc
+ 939               	.LFE22:
+ 941               	.global	mpu6050_getRawData
+ 943               	mpu6050_getRawData:
+ 944               	.LFB23:
+ 475:mpu6050.c     **** 	//set gyro range
+ 476:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGT
+ 477:mpu6050.c     **** 	//set accel range
+ 478:mpu6050.c     **** 	mpu6050_writeBits(MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LE
+ 479:mpu6050.c     **** 
+ 480:mpu6050.c     **** 	#if MPU6050_GETATTITUDE == 1
+ 481:mpu6050.c     **** 	#error "Do not enable timer 0 it is in use elsewhere!"
+ 482:mpu6050.c     **** 	//MPU6050_TIMER0INIT
+ 483:mpu6050.c     **** 	#endif
+ 484:mpu6050.c     **** }
+ 485:mpu6050.c     **** 
+ 486:mpu6050.c     **** //can not accept many request if we alreay have getattitude requests
+ 487:mpu6050.c     **** /*
+ 488:mpu6050.c     ****  * get raw data
+ 489:mpu6050.c     ****  */
+ 490:mpu6050.c     **** void mpu6050_getRawData(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* g
+ 945               		.loc 1 490 0
+ 946               		.cfi_startproc
+ 947               	.LVL80:
+ 948 0350 8F92      		push r8
+ 949               	.LCFI49:
+ 950               		.cfi_def_cfa_offset 3
+ 951               		.cfi_offset 8, -2
+ 952 0352 9F92      		push r9
+ 953               	.LCFI50:
+ 954               		.cfi_def_cfa_offset 4
+ 955               		.cfi_offset 9, -3
+ 956 0354 AF92      		push r10
+ 957               	.LCFI51:
+ 958               		.cfi_def_cfa_offset 5
+ 959               		.cfi_offset 10, -4
+ 960 0356 BF92      		push r11
+ 961               	.LCFI52:
+ 962               		.cfi_def_cfa_offset 6
+ 963               		.cfi_offset 11, -5
+ 964 0358 CF92      		push r12
+ 965               	.LCFI53:
+ 966               		.cfi_def_cfa_offset 7
+ 967               		.cfi_offset 12, -6
+ 968 035a DF92      		push r13
+ 969               	.LCFI54:
+ 970               		.cfi_def_cfa_offset 8
+ 971               		.cfi_offset 13, -7
+ 972 035c EF92      		push r14
+ 973               	.LCFI55:
+ 974               		.cfi_def_cfa_offset 9
+ 975               		.cfi_offset 14, -8
+ 976 035e FF92      		push r15
+ 977               	.LCFI56:
+ 978               		.cfi_def_cfa_offset 10
+ 979               		.cfi_offset 15, -9
+ 980 0360 0F93      		push r16
+ 981               	.LCFI57:
+ 982               		.cfi_def_cfa_offset 11
+ 983               		.cfi_offset 16, -10
+ 984 0362 1F93      		push r17
+ 985               	.LCFI58:
+ 986               		.cfi_def_cfa_offset 12
+ 987               		.cfi_offset 17, -11
+ 988 0364 CF93      		push r28
+ 989               	.LCFI59:
+ 990               		.cfi_def_cfa_offset 13
+ 991               		.cfi_offset 28, -12
+ 992 0366 DF93      		push r29
+ 993               	.LCFI60:
+ 994               		.cfi_def_cfa_offset 14
+ 995               		.cfi_offset 29, -13
+ 996               	/* prologue: function */
+ 997               	/* frame size = 0 */
+ 998               	/* stack size = 12 */
+ 999               	.L__stack_usage = 12
+ 1000 0368 EC01      		movw r28,r24
+ 1001 036a 5B01      		movw r10,r22
+ 1002 036c 6A01      		movw r12,r20
+ 1003 036e 4901      		movw r8,r18
+ 491:mpu6050.c     **** 	mpu6050_readBytes(MPU6050_RA_ACCEL_XOUT_H, 14, (uint8_t *)buffer);
+ 1004               		.loc 1 491 0
+ 1005 0370 40E0      		ldi r20,lo8(buffer)
+ 1006 0372 50E0      		ldi r21,hi8(buffer)
+ 1007               	.LVL81:
+ 1008 0374 6EE0      		ldi r22,lo8(14)
+ 1009               	.LVL82:
+ 1010 0376 8BE3      		ldi r24,lo8(59)
+ 1011               	.LVL83:
+ 1012 0378 0E94 0000 		call mpu6050_readBytes
+ 1013               	.LVL84:
+ 492:mpu6050.c     **** 
+ 493:mpu6050.c     ****     *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
+ 1014               		.loc 1 493 0
+ 1015 037c 2091 0000 		lds r18,buffer
+ 1016 0380 8091 0000 		lds r24,buffer+1
+ 1017 0384 90E0      		ldi r25,0
+ 1018 0386 922B      		or r25,r18
+ 1019 0388 9983      		std Y+1,r25
+ 1020 038a 8883      		st Y,r24
+ 494:mpu6050.c     ****     *ay = (((int16_t)buffer[2]) << 8) | buffer[3];
+ 1021               		.loc 1 494 0
+ 1022 038c 2091 0000 		lds r18,buffer+2
+ 1023 0390 8091 0000 		lds r24,buffer+3
+ 1024 0394 90E0      		ldi r25,0
+ 1025 0396 922B      		or r25,r18
+ 1026 0398 F501      		movw r30,r10
+ 1027 039a 9183      		std Z+1,r25
+ 1028 039c 8083      		st Z,r24
+ 495:mpu6050.c     ****     *az = (((int16_t)buffer[4]) << 8) | buffer[5];
+ 1029               		.loc 1 495 0
+ 1030 039e 2091 0000 		lds r18,buffer+4
+ 1031 03a2 8091 0000 		lds r24,buffer+5
+ 1032 03a6 90E0      		ldi r25,0
+ 1033 03a8 922B      		or r25,r18
+ 1034 03aa F601      		movw r30,r12
+ 1035 03ac 9183      		std Z+1,r25
+ 1036 03ae 8083      		st Z,r24
+ 496:mpu6050.c     ****     *gx = (((int16_t)buffer[8]) << 8) | buffer[9];
+ 1037               		.loc 1 496 0
+ 1038 03b0 2091 0000 		lds r18,buffer+8
+ 1039 03b4 8091 0000 		lds r24,buffer+9
+ 1040 03b8 90E0      		ldi r25,0
+ 1041 03ba 922B      		or r25,r18
+ 1042 03bc F401      		movw r30,r8
+ 1043 03be 9183      		std Z+1,r25
+ 1044 03c0 8083      		st Z,r24
+ 497:mpu6050.c     ****     *gy = (((int16_t)buffer[10]) << 8) | buffer[11];
+ 1045               		.loc 1 497 0
+ 1046 03c2 2091 0000 		lds r18,buffer+10
+ 1047 03c6 8091 0000 		lds r24,buffer+11
+ 1048 03ca 90E0      		ldi r25,0
+ 1049 03cc 922B      		or r25,r18
+ 1050 03ce F801      		movw r30,r16
+ 1051 03d0 9183      		std Z+1,r25
+ 1052 03d2 8083      		st Z,r24
+ 498:mpu6050.c     ****     *gz = (((int16_t)buffer[12]) << 8) | buffer[13];
+ 1053               		.loc 1 498 0
+ 1054 03d4 2091 0000 		lds r18,buffer+12
+ 1055 03d8 8091 0000 		lds r24,buffer+13
+ 1056 03dc 90E0      		ldi r25,0
+ 1057 03de 922B      		or r25,r18
+ 1058 03e0 F701      		movw r30,r14
+ 1059 03e2 9183      		std Z+1,r25
+ 1060 03e4 8083      		st Z,r24
+ 1061               	/* epilogue start */
+ 499:mpu6050.c     **** }
+ 1062               		.loc 1 499 0
+ 1063 03e6 DF91      		pop r29
+ 1064 03e8 CF91      		pop r28
+ 1065               	.LVL85:
+ 1066 03ea 1F91      		pop r17
+ 1067 03ec 0F91      		pop r16
+ 1068               	.LVL86:
+ 1069 03ee FF90      		pop r15
+ 1070 03f0 EF90      		pop r14
+ 1071               	.LVL87:
+ 1072 03f2 DF90      		pop r13
+ 1073 03f4 CF90      		pop r12
+ 1074               	.LVL88:
+ 1075 03f6 BF90      		pop r11
+ 1076 03f8 AF90      		pop r10
+ 1077               	.LVL89:
+ 1078 03fa 9F90      		pop r9
+ 1079 03fc 8F90      		pop r8
+ 1080               	.LVL90:
+ 1081 03fe 0895      		ret
+ 1082               		.cfi_endproc
+ 1083               	.LFE23:
+ 1085               	.global	__floatsisf
+ 1086               	.global	__mulsf3
+ 1087               	.global	__divsf3
+ 1088               	.global	mpu6050_getConvData
+ 1090               	mpu6050_getConvData:
+ 1091               	.LFB24:
+ 500:mpu6050.c     **** 
+ 501:mpu6050.c     **** /*
+ 502:mpu6050.c     ****  * get raw data converted to g and deg/sec values
+ 503:mpu6050.c     ****  */
+ 504:mpu6050.c     **** void mpu6050_getConvData(double* axg, double* ayg, double* azg, double* gxds, double* gyds, double*
+ 1092               		.loc 1 504 0
+ 1093               		.cfi_startproc
+ 1094               	.LVL91:
+ 1095 0400 2F92      		push r2
+ 1096               	.LCFI61:
+ 1097               		.cfi_def_cfa_offset 3
+ 1098               		.cfi_offset 2, -2
+ 1099 0402 3F92      		push r3
+ 1100               	.LCFI62:
+ 1101               		.cfi_def_cfa_offset 4
+ 1102               		.cfi_offset 3, -3
+ 1103 0404 4F92      		push r4
+ 1104               	.LCFI63:
+ 1105               		.cfi_def_cfa_offset 5
+ 1106               		.cfi_offset 4, -4
+ 1107 0406 5F92      		push r5
+ 1108               	.LCFI64:
+ 1109               		.cfi_def_cfa_offset 6
+ 1110               		.cfi_offset 5, -5
+ 1111 0408 6F92      		push r6
+ 1112               	.LCFI65:
+ 1113               		.cfi_def_cfa_offset 7
+ 1114               		.cfi_offset 6, -6
+ 1115 040a 7F92      		push r7
+ 1116               	.LCFI66:
+ 1117               		.cfi_def_cfa_offset 8
+ 1118               		.cfi_offset 7, -7
+ 1119 040c 8F92      		push r8
+ 1120               	.LCFI67:
+ 1121               		.cfi_def_cfa_offset 9
+ 1122               		.cfi_offset 8, -8
+ 1123 040e 9F92      		push r9
+ 1124               	.LCFI68:
+ 1125               		.cfi_def_cfa_offset 10
+ 1126               		.cfi_offset 9, -9
+ 1127 0410 AF92      		push r10
+ 1128               	.LCFI69:
+ 1129               		.cfi_def_cfa_offset 11
+ 1130               		.cfi_offset 10, -10
+ 1131 0412 BF92      		push r11
+ 1132               	.LCFI70:
+ 1133               		.cfi_def_cfa_offset 12
+ 1134               		.cfi_offset 11, -11
+ 1135 0414 CF92      		push r12
+ 1136               	.LCFI71:
+ 1137               		.cfi_def_cfa_offset 13
+ 1138               		.cfi_offset 12, -12
+ 1139 0416 DF92      		push r13
+ 1140               	.LCFI72:
+ 1141               		.cfi_def_cfa_offset 14
+ 1142               		.cfi_offset 13, -13
+ 1143 0418 EF92      		push r14
+ 1144               	.LCFI73:
+ 1145               		.cfi_def_cfa_offset 15
+ 1146               		.cfi_offset 14, -14
+ 1147 041a FF92      		push r15
+ 1148               	.LCFI74:
+ 1149               		.cfi_def_cfa_offset 16
+ 1150               		.cfi_offset 15, -15
+ 1151 041c 0F93      		push r16
+ 1152               	.LCFI75:
+ 1153               		.cfi_def_cfa_offset 17
+ 1154               		.cfi_offset 16, -16
+ 1155 041e 1F93      		push r17
+ 1156               	.LCFI76:
+ 1157               		.cfi_def_cfa_offset 18
+ 1158               		.cfi_offset 17, -17
+ 1159 0420 CF93      		push r28
+ 1160               	.LCFI77:
+ 1161               		.cfi_def_cfa_offset 19
+ 1162               		.cfi_offset 28, -18
+ 1163 0422 DF93      		push r29
+ 1164               	.LCFI78:
+ 1165               		.cfi_def_cfa_offset 20
+ 1166               		.cfi_offset 29, -19
+ 1167 0424 CDB7      		in r28,__SP_L__
+ 1168 0426 DEB7      		in r29,__SP_H__
+ 1169               	.LCFI79:
+ 1170               		.cfi_def_cfa_register 28
+ 1171 0428 2C97      		sbiw r28,12
+ 1172               	.LCFI80:
+ 1173               		.cfi_def_cfa_offset 32
+ 1174 042a 0FB6      		in __tmp_reg__,__SREG__
+ 1175 042c F894      		cli
+ 1176 042e DEBF      		out __SP_H__,r29
+ 1177 0430 0FBE      		out __SREG__,__tmp_reg__
+ 1178 0432 CDBF      		out __SP_L__,r28
+ 1179               	/* prologue: function */
+ 1180               	/* frame size = 12 */
+ 1181               	/* stack size = 30 */
+ 1182               	.L__stack_usage = 30
+ 1183 0434 3C01      		movw r6,r24
+ 1184 0436 4B01      		movw r8,r22
+ 1185 0438 5A01      		movw r10,r20
+ 1186 043a 6901      		movw r12,r18
+ 1187 043c 2801      		movw r4,r16
+ 1188 043e 1701      		movw r2,r14
+ 505:mpu6050.c     **** 	int16_t ax = 0;
+ 1189               		.loc 1 505 0
+ 1190 0440 1C86      		std Y+12,__zero_reg__
+ 1191 0442 1B86      		std Y+11,__zero_reg__
+ 506:mpu6050.c     **** 	int16_t ay = 0;
+ 1192               		.loc 1 506 0
+ 1193 0444 1A86      		std Y+10,__zero_reg__
+ 1194 0446 1986      		std Y+9,__zero_reg__
+ 507:mpu6050.c     **** 	int16_t az = 0;
+ 1195               		.loc 1 507 0
+ 1196 0448 1886      		std Y+8,__zero_reg__
+ 1197 044a 1F82      		std Y+7,__zero_reg__
+ 508:mpu6050.c     **** 	int16_t gx = 0;
+ 1198               		.loc 1 508 0
+ 1199 044c 1E82      		std Y+6,__zero_reg__
+ 1200 044e 1D82      		std Y+5,__zero_reg__
+ 509:mpu6050.c     **** 	int16_t gy = 0;
+ 1201               		.loc 1 509 0
+ 1202 0450 1C82      		std Y+4,__zero_reg__
+ 1203 0452 1B82      		std Y+3,__zero_reg__
+ 510:mpu6050.c     **** 	int16_t gz = 0;
+ 1204               		.loc 1 510 0
+ 1205 0454 1A82      		std Y+2,__zero_reg__
+ 1206 0456 1982      		std Y+1,__zero_reg__
+ 511:mpu6050.c     **** 	mpu6050_getRawData(&ax, &ay, &az, &gx, &gy, &gz);
+ 1207               		.loc 1 511 0
+ 1208 0458 CE01      		movw r24,r28
+ 1209               	.LVL92:
+ 1210 045a 0196      		adiw r24,1
+ 1211 045c 7C01      		movw r14,r24
+ 1212               	.LVL93:
+ 1213 045e 8E01      		movw r16,r28
+ 1214               	.LVL94:
+ 1215 0460 0D5F      		subi r16,-3
+ 1216 0462 1F4F      		sbci r17,-1
+ 1217 0464 9E01      		movw r18,r28
+ 1218               	.LVL95:
+ 1219 0466 2B5F      		subi r18,-5
+ 1220 0468 3F4F      		sbci r19,-1
+ 1221 046a AE01      		movw r20,r28
+ 1222               	.LVL96:
+ 1223 046c 495F      		subi r20,-7
+ 1224 046e 5F4F      		sbci r21,-1
+ 1225 0470 BE01      		movw r22,r28
+ 1226               	.LVL97:
+ 1227 0472 675F      		subi r22,-9
+ 1228 0474 7F4F      		sbci r23,-1
+ 1229 0476 0A96      		adiw r24,10
+ 1230 0478 0E94 0000 		call mpu6050_getRawData
+ 1231               	.LVL98:
+ 512:mpu6050.c     **** 
+ 513:mpu6050.c     **** 	#if MPU6050_CALIBRATEDACCGYRO == 1
+ 514:mpu6050.c     ****     *axg = (double)(ax-MPU6050_AXOFFSET)/MPU6050_AXGAIN;
+ 1232               		.loc 1 514 0
+ 1233 047c 6B85      		ldd r22,Y+11
+ 1234 047e 7C85      		ldd r23,Y+12
+ 1235 0480 6E5E      		subi r22,-18
+ 1236 0482 7F4F      		sbci r23,-1
+ 1237 0484 8827      		clr r24
+ 1238 0486 77FD      		sbrc r23,7
+ 1239 0488 8095      		com r24
+ 1240 048a 982F      		mov r25,r24
+ 1241 048c 0E94 0000 		call __floatsisf
+ 1242               	.LVL99:
+ 1243 0490 20E0      		ldi r18,0
+ 1244 0492 30E0      		ldi r19,0
+ 1245 0494 40E8      		ldi r20,lo8(-128)
+ 1246 0496 58E3      		ldi r21,lo8(56)
+ 1247 0498 0E94 0000 		call __mulsf3
+ 1248               	.LVL100:
+ 1249 049c F301      		movw r30,r6
+ 1250 049e 6083      		st Z,r22
+ 1251 04a0 7183      		std Z+1,r23
+ 1252 04a2 8283      		std Z+2,r24
+ 1253 04a4 9383      		std Z+3,r25
+ 515:mpu6050.c     ****     *ayg = (double)(ay-MPU6050_AYOFFSET)/MPU6050_AYGAIN;
+ 1254               		.loc 1 515 0
+ 1255 04a6 6985      		ldd r22,Y+9
+ 1256 04a8 7A85      		ldd r23,Y+10
+ 1257 04aa 8827      		clr r24
+ 1258 04ac 77FD      		sbrc r23,7
+ 1259 04ae 8095      		com r24
+ 1260 04b0 982F      		mov r25,r24
+ 1261 04b2 0E94 0000 		call __floatsisf
+ 1262               	.LVL101:
+ 1263 04b6 20E0      		ldi r18,0
+ 1264 04b8 30E0      		ldi r19,0
+ 1265 04ba 40E8      		ldi r20,lo8(-128)
+ 1266 04bc 58E3      		ldi r21,lo8(56)
+ 1267 04be 0E94 0000 		call __mulsf3
+ 1268               	.LVL102:
+ 1269 04c2 F401      		movw r30,r8
+ 1270 04c4 6083      		st Z,r22
+ 1271 04c6 7183      		std Z+1,r23
+ 1272 04c8 8283      		std Z+2,r24
+ 1273 04ca 9383      		std Z+3,r25
+ 516:mpu6050.c     ****     *azg = (double)(az-MPU6050_AZOFFSET)/MPU6050_AZGAIN;
+ 1274               		.loc 1 516 0
+ 1275 04cc 6F81      		ldd r22,Y+7
+ 1276 04ce 7885      		ldd r23,Y+8
+ 1277 04d0 8827      		clr r24
+ 1278 04d2 77FD      		sbrc r23,7
+ 1279 04d4 8095      		com r24
+ 1280 04d6 982F      		mov r25,r24
+ 1281 04d8 0E94 0000 		call __floatsisf
+ 1282               	.LVL103:
+ 1283 04dc 20E0      		ldi r18,0
+ 1284 04de 30E0      		ldi r19,0
+ 1285 04e0 40E8      		ldi r20,lo8(-128)
+ 1286 04e2 58E3      		ldi r21,lo8(56)
+ 1287 04e4 0E94 0000 		call __mulsf3
+ 1288               	.LVL104:
+ 1289 04e8 F501      		movw r30,r10
+ 1290 04ea 6083      		st Z,r22
+ 1291 04ec 7183      		std Z+1,r23
+ 1292 04ee 8283      		std Z+2,r24
+ 1293 04f0 9383      		std Z+3,r25
+ 517:mpu6050.c     ****     *gxds = (double)(gx-MPU6050_GXOFFSET)/MPU6050_GXGAIN;
+ 1294               		.loc 1 517 0
+ 1295 04f2 6D81      		ldd r22,Y+5
+ 1296 04f4 7E81      		ldd r23,Y+6
+ 1297 04f6 665D      		subi r22,-42
+ 1298 04f8 7F4F      		sbci r23,-1
+ 1299 04fa 8827      		clr r24
+ 1300 04fc 77FD      		sbrc r23,7
+ 1301 04fe 8095      		com r24
+ 1302 0500 982F      		mov r25,r24
+ 1303 0502 0E94 0000 		call __floatsisf
+ 1304               	.LVL105:
+ 1305 0506 23E3      		ldi r18,lo8(51)
+ 1306 0508 33E3      		ldi r19,lo8(51)
+ 1307 050a 43E8      		ldi r20,lo8(-125)
+ 1308 050c 51E4      		ldi r21,lo8(65)
+ 1309 050e 0E94 0000 		call __divsf3
+ 1310               	.LVL106:
+ 1311 0512 F601      		movw r30,r12
+ 1312 0514 6083      		st Z,r22
+ 1313 0516 7183      		std Z+1,r23
+ 1314 0518 8283      		std Z+2,r24
+ 1315 051a 9383      		std Z+3,r25
+ 518:mpu6050.c     **** 	*gyds = (double)(gy-MPU6050_GYOFFSET)/MPU6050_GYGAIN;
+ 1316               		.loc 1 518 0
+ 1317 051c 6B81      		ldd r22,Y+3
+ 1318 051e 7C81      		ldd r23,Y+4
+ 1319 0520 6950      		subi r22,9
+ 1320 0522 7109      		sbc r23,__zero_reg__
+ 1321 0524 8827      		clr r24
+ 1322 0526 77FD      		sbrc r23,7
+ 1323 0528 8095      		com r24
+ 1324 052a 982F      		mov r25,r24
+ 1325 052c 0E94 0000 		call __floatsisf
+ 1326               	.LVL107:
+ 1327 0530 23E3      		ldi r18,lo8(51)
+ 1328 0532 33E3      		ldi r19,lo8(51)
+ 1329 0534 43E8      		ldi r20,lo8(-125)
+ 1330 0536 51E4      		ldi r21,lo8(65)
+ 1331 0538 0E94 0000 		call __divsf3
+ 1332               	.LVL108:
+ 1333 053c F201      		movw r30,r4
+ 1334 053e 6083      		st Z,r22
+ 1335 0540 7183      		std Z+1,r23
+ 1336 0542 8283      		std Z+2,r24
+ 1337 0544 9383      		std Z+3,r25
+ 519:mpu6050.c     **** 	*gzds = (double)(gz-MPU6050_GZOFFSET)/MPU6050_GZGAIN;
+ 1338               		.loc 1 519 0
+ 1339 0546 6981      		ldd r22,Y+1
+ 1340 0548 7A81      		ldd r23,Y+2
+ 1341 054a 635E      		subi r22,-29
+ 1342 054c 7F4F      		sbci r23,-1
+ 1343 054e 8827      		clr r24
+ 1344 0550 77FD      		sbrc r23,7
+ 1345 0552 8095      		com r24
+ 1346 0554 982F      		mov r25,r24
+ 1347 0556 0E94 0000 		call __floatsisf
+ 1348               	.LVL109:
+ 1349 055a 23E3      		ldi r18,lo8(51)
+ 1350 055c 33E3      		ldi r19,lo8(51)
+ 1351 055e 43E8      		ldi r20,lo8(-125)
+ 1352 0560 51E4      		ldi r21,lo8(65)
+ 1353 0562 0E94 0000 		call __divsf3
+ 1354               	.LVL110:
+ 1355 0566 F101      		movw r30,r2
+ 1356 0568 6083      		st Z,r22
+ 1357 056a 7183      		std Z+1,r23
+ 1358 056c 8283      		std Z+2,r24
+ 1359 056e 9383      		std Z+3,r25
+ 1360               	/* epilogue start */
+ 520:mpu6050.c     **** 	#else
+ 521:mpu6050.c     ****     *axg = (double)(ax)/MPU6050_AGAIN;
+ 522:mpu6050.c     ****     *ayg = (double)(ay)/MPU6050_AGAIN;
+ 523:mpu6050.c     ****     *azg = (double)(az)/MPU6050_AGAIN;
+ 524:mpu6050.c     ****     *gxds = (double)(gx)/MPU6050_GGAIN;
+ 525:mpu6050.c     **** 	*gyds = (double)(gy)/MPU6050_GGAIN;
+ 526:mpu6050.c     **** 	*gzds = (double)(gz)/MPU6050_GGAIN;
+ 527:mpu6050.c     **** 	#endif
+ 528:mpu6050.c     **** }
+ 1361               		.loc 1 528 0
+ 1362 0570 2C96      		adiw r28,12
+ 1363 0572 0FB6      		in __tmp_reg__,__SREG__
+ 1364 0574 F894      		cli
+ 1365 0576 DEBF      		out __SP_H__,r29
+ 1366 0578 0FBE      		out __SREG__,__tmp_reg__
+ 1367 057a CDBF      		out __SP_L__,r28
+ 1368 057c DF91      		pop r29
+ 1369 057e CF91      		pop r28
+ 1370 0580 1F91      		pop r17
+ 1371 0582 0F91      		pop r16
+ 1372 0584 FF90      		pop r15
+ 1373 0586 EF90      		pop r14
+ 1374 0588 DF90      		pop r13
+ 1375 058a CF90      		pop r12
+ 1376               	.LVL111:
+ 1377 058c BF90      		pop r11
+ 1378 058e AF90      		pop r10
+ 1379               	.LVL112:
+ 1380 0590 9F90      		pop r9
+ 1381 0592 8F90      		pop r8
+ 1382               	.LVL113:
+ 1383 0594 7F90      		pop r7
+ 1384 0596 6F90      		pop r6
+ 1385               	.LVL114:
+ 1386 0598 5F90      		pop r5
+ 1387 059a 4F90      		pop r4
+ 1388               	.LVL115:
+ 1389 059c 3F90      		pop r3
+ 1390 059e 2F90      		pop r2
+ 1391               	.LVL116:
+ 1392 05a0 0895      		ret
+ 1393               		.cfi_endproc
+ 1394               	.LFE24:
+ 1396               		.comm	buffer,14,1
+ 1397               	.Letext0:
+ 1398               		.file 3 "/usr/local/CrossPack-AVR-20131216/avr/include/stdint.h"
+ 1399               		.file 4 "i2cmaster.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 mpu6050.c
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:2      *ABS*:0000003e __SP_H__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:3      *ABS*:0000003d __SP_L__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:4      *ABS*:0000003f __SREG__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:11     .text:00000000 mpu6050_readBytes.part.0
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:159    .text:00000092 mpu6050_readBytes
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:182    .text:0000009c mpu6050_readByte
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:206    .text:000000a4 mpu6050_writeBytes
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:322    .text:00000112 mpu6050_writeByte
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:366    .text:00000132 mpu6050_writeBits.part.1
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:486    .text:000001b0 mpu6050_readBits
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:605    .text:00000228 mpu6050_readBit
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:679    .text:00000268 mpu6050_writeBits
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:699    .text:00000270 mpu6050_writeBit
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:787    .text:000002c6 mpu6050_setSleepDisabled
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:806    .text:000002d0 mpu6050_setSleepEnabled
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:825    .text:000002da mpu6050_testConnection
+                            *COM*:0000000e buffer
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:855    .text:000002f6 mpu6050_init
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:943    .text:00000350 mpu6050_getRawData
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cck1LXAY.s:1090   .text:00000400 mpu6050_getConvData
+
+UNDEFINED SYMBOLS
+i2c_start
+i2c_write
+i2c_readNak
+i2c_readAck
+i2c_stop
+__floatsisf
+__mulsf3
+__divsf3
+__do_clear_bss

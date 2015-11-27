@@ -1,0 +1,316 @@
+   1               		.file	"main.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	receiveWord
+  12               	receiveWord:
+  13               	.LFB7:
+  14               		.file 1 "main.c"
+   1:main.c        **** #ifndef F_CPU
+   2:main.c        **** #define F_CPU 16000000UL
+   3:main.c        **** #endif
+   4:main.c        **** 
+   5:main.c        **** //#include <stdlib.h>
+   6:main.c        **** #include <avr/io.h>
+   7:main.c        **** #include <stdio.h>
+   8:main.c        **** #include <util/delay.h>
+   9:main.c        **** #include <string.h>
+  10:main.c        **** #include "main.h"
+  11:main.c        **** #include "uart.h"
+  12:main.c        **** 
+  13:main.c        **** unsigned char receiveWord(const uint16_t length,unsigned char * response){
+  15               		.loc 1 13 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18 0000 AF92      		push r10
+  19               	.LCFI0:
+  20               		.cfi_def_cfa_offset 3
+  21               		.cfi_offset 10, -2
+  22 0002 BF92      		push r11
+  23               	.LCFI1:
+  24               		.cfi_def_cfa_offset 4
+  25               		.cfi_offset 11, -3
+  26 0004 CF92      		push r12
+  27               	.LCFI2:
+  28               		.cfi_def_cfa_offset 5
+  29               		.cfi_offset 12, -4
+  30 0006 DF92      		push r13
+  31               	.LCFI3:
+  32               		.cfi_def_cfa_offset 6
+  33               		.cfi_offset 13, -5
+  34 0008 EF92      		push r14
+  35               	.LCFI4:
+  36               		.cfi_def_cfa_offset 7
+  37               		.cfi_offset 14, -6
+  38 000a FF92      		push r15
+  39               	.LCFI5:
+  40               		.cfi_def_cfa_offset 8
+  41               		.cfi_offset 15, -7
+  42 000c 0F93      		push r16
+  43               	.LCFI6:
+  44               		.cfi_def_cfa_offset 9
+  45               		.cfi_offset 16, -8
+  46 000e 1F93      		push r17
+  47               	.LCFI7:
+  48               		.cfi_def_cfa_offset 10
+  49               		.cfi_offset 17, -9
+  50 0010 CF93      		push r28
+  51               	.LCFI8:
+  52               		.cfi_def_cfa_offset 11
+  53               		.cfi_offset 28, -10
+  54 0012 DF93      		push r29
+  55               	.LCFI9:
+  56               		.cfi_def_cfa_offset 12
+  57               		.cfi_offset 29, -11
+  58               	/* prologue: function */
+  59               	/* frame size = 0 */
+  60               	/* stack size = 10 */
+  61               	.L__stack_usage = 10
+  62 0014 6C01      		movw r12,r24
+  63 0016 7B01      		movw r14,r22
+  64               	.LVL1:
+  14:main.c        ****     uint16_t index = 0;
+  15:main.c        ****     if(length == 0) return 0;
+  65               		.loc 1 15 0
+  66 0018 0097      		sbiw r24,0
+  67 001a 01F0      		breq .L7
+  68 001c 8B01      		movw r16,r22
+  69 001e C0E0      		ldi r28,0
+  70 0020 D0E0      		ldi r29,0
+  71               	.LVL2:
+  72               	.L3:
+  16:main.c        ****     
+  17:main.c        ****     for(index = 0;index < length;index++){
+  18:main.c        ****         response[index] = getchar();
+  73               		.loc 1 18 0
+  74 0022 5801      		movw r10,r16
+  75 0024 8091 0000 		lds r24,__iob
+  76 0028 9091 0000 		lds r25,__iob+1
+  77 002c 0E94 0000 		call fgetc
+  78               	.LVL3:
+  79 0030 F801      		movw r30,r16
+  80 0032 8193      		st Z+,r24
+  81 0034 8F01      		movw r16,r30
+  19:main.c        ****         switch (response[index]){
+  82               		.loc 1 19 0
+  83 0036 8A30      		cpi r24,lo8(10)
+  84 0038 01F0      		breq .L5
+  85 003a 8D30      		cpi r24,lo8(13)
+  86 003c 01F4      		brne .L14
+  87               	.L5:
+  20:main.c        ****             case '\r':
+  21:main.c        ****             case '\n':
+  22:main.c        ****                 response[index] = '\0';
+  88               		.loc 1 22 0
+  89 003e F501      		movw r30,r10
+  90 0040 00C0      		rjmp .L15
+  91               	.L14:
+  23:main.c        ****                 return index + 1;
+  24:main.c        ****             default:
+  25:main.c        ****                 putchar(response[index]);
+  92               		.loc 1 25 0
+  93 0042 6091 0000 		lds r22,__iob+2
+  94 0046 7091 0000 		lds r23,__iob+2+1
+  95 004a 90E0      		ldi r25,0
+  96 004c 0E94 0000 		call fputc
+  97               	.LVL4:
+  17:main.c        ****     for(index = 0;index < length;index++){
+  98               		.loc 1 17 0
+  99 0050 2196      		adiw r28,1
+ 100               	.LVL5:
+ 101 0052 CC15      		cp r28,r12
+ 102 0054 DD05      		cpc r29,r13
+ 103 0056 01F4      		brne .L3
+  26:main.c        ****                 break;
+  27:main.c        ****         }
+  28:main.c        ****     }
+  29:main.c        ****     response[index] = '\0';
+ 104               		.loc 1 29 0
+ 105 0058 F701      		movw r30,r14
+ 106 005a EC0F      		add r30,r28
+ 107 005c FD1F      		adc r31,r29
+ 108               	.L15:
+ 109 005e 1082      		st Z,__zero_reg__
+  30:main.c        ****     return index + 1;
+ 110               		.loc 1 30 0
+ 111 0060 8C2F      		mov r24,r28
+ 112 0062 8F5F      		subi r24,lo8(-(1))
+ 113 0064 00C0      		rjmp .L2
+ 114               	.LVL6:
+ 115               	.L7:
+  15:main.c        ****     if(length == 0) return 0;
+ 116               		.loc 1 15 0
+ 117 0066 80E0      		ldi r24,0
+ 118               	.LVL7:
+ 119               	.L2:
+ 120               	/* epilogue start */
+  31:main.c        **** }
+ 121               		.loc 1 31 0
+ 122 0068 DF91      		pop r29
+ 123 006a CF91      		pop r28
+ 124 006c 1F91      		pop r17
+ 125 006e 0F91      		pop r16
+ 126 0070 FF90      		pop r15
+ 127 0072 EF90      		pop r14
+ 128               	.LVL8:
+ 129 0074 DF90      		pop r13
+ 130 0076 CF90      		pop r12
+ 131               	.LVL9:
+ 132 0078 BF90      		pop r11
+ 133 007a AF90      		pop r10
+ 134 007c 0895      		ret
+ 135               		.cfi_endproc
+ 136               	.LFE7:
+ 138               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 139               	.LC0:
+ 140 0000 506C 6561 		.string	"Please enter your last name:"
+ 140      7365 2065 
+ 140      6E74 6572 
+ 140      2079 6F75 
+ 140      7220 6C61 
+ 141               	.LC1:
+ 142 001d 0A0A 0A59 		.string	"\n\n\nYou responded:\n %s\n\n\n"
+ 142      6F75 2072 
+ 142      6573 706F 
+ 142      6E64 6564 
+ 142      3A0A 2025 
+ 143               		.section	.text.startup,"ax",@progbits
+ 144               	.global	main
+ 146               	main:
+ 147               	.LFB8:
+  32:main.c        **** 
+  33:main.c        **** #define RESPONSEBUFFER 50
+  34:main.c        **** int main(void) {
+ 148               		.loc 1 34 0
+ 149               		.cfi_startproc
+ 150 0000 CF93      		push r28
+ 151               	.LCFI10:
+ 152               		.cfi_def_cfa_offset 3
+ 153               		.cfi_offset 28, -2
+ 154 0002 DF93      		push r29
+ 155               	.LCFI11:
+ 156               		.cfi_def_cfa_offset 4
+ 157               		.cfi_offset 29, -3
+ 158 0004 CDB7      		in r28,__SP_L__
+ 159 0006 DEB7      		in r29,__SP_H__
+ 160               	.LCFI12:
+ 161               		.cfi_def_cfa_register 28
+ 162 0008 E297      		sbiw r28,50
+ 163               	.LCFI13:
+ 164               		.cfi_def_cfa_offset 54
+ 165 000a 0FB6      		in __tmp_reg__,__SREG__
+ 166 000c F894      		cli
+ 167 000e DEBF      		out __SP_H__,r29
+ 168 0010 0FBE      		out __SREG__,__tmp_reg__
+ 169 0012 CDBF      		out __SP_L__,r28
+ 170               	/* prologue: function */
+ 171               	/* frame size = 50 */
+ 172               	/* stack size = 52 */
+ 173               	.L__stack_usage = 52
+  35:main.c        ****     uart_init();
+ 174               		.loc 1 35 0
+ 175 0014 0E94 0000 		call uart_init
+ 176               	.LVL10:
+  36:main.c        ****     stdout = &uart_tx;
+ 177               		.loc 1 36 0
+ 178 0018 80E0      		ldi r24,lo8(uart_tx)
+ 179 001a 90E0      		ldi r25,hi8(uart_tx)
+ 180 001c 9093 0000 		sts __iob+2+1,r25
+ 181 0020 8093 0000 		sts __iob+2,r24
+  37:main.c        ****     stdin  = &uart_rx;
+ 182               		.loc 1 37 0
+ 183 0024 80E0      		ldi r24,lo8(uart_rx)
+ 184 0026 90E0      		ldi r25,hi8(uart_rx)
+ 185 0028 9093 0000 		sts __iob+1,r25
+ 186 002c 8093 0000 		sts __iob,r24
+  38:main.c        ****     DDRB = 0; //Make output pin
+ 187               		.loc 1 38 0
+ 188 0030 14B8      		out 0x4,__zero_reg__
+  39:main.c        ****     char uart_response[RESPONSEBUFFER];
+  40:main.c        ****     while (1) {
+  41:main.c        ****         //To write to UART use printf
+  42:main.c        **** 	uart_putchar('c',&uart_tx);
+  43:main.c        ****         printf("Please enter your last name:");
+ 189               		.loc 1 43 0
+ 190 0032 80E0      		ldi r24,lo8(.LC0)
+ 191 0034 C82E      		mov r12,r24
+ 192 0036 80E0      		ldi r24,hi8(.LC0)
+ 193 0038 D82E      		mov r13,r24
+  44:main.c        ****         receiveWord(RESPONSEBUFFER,&uart_response);
+ 194               		.loc 1 44 0
+ 195 003a 8E01      		movw r16,r28
+ 196 003c 0F5F      		subi r16,-1
+ 197 003e 1F4F      		sbci r17,-1
+  45:main.c        ****         printf("\n\n\nYou responded:\n %s\n\n\n",uart_response);
+ 198               		.loc 1 45 0
+ 199 0040 90E0      		ldi r25,lo8(.LC1)
+ 200 0042 E92E      		mov r14,r25
+ 201 0044 90E0      		ldi r25,hi8(.LC1)
+ 202 0046 F92E      		mov r15,r25
+ 203               	.L18:
+  42:main.c        **** 	uart_putchar('c',&uart_tx);
+ 204               		.loc 1 42 0 discriminator 1
+ 205 0048 60E0      		ldi r22,lo8(uart_tx)
+ 206 004a 70E0      		ldi r23,hi8(uart_tx)
+ 207 004c 83E6      		ldi r24,lo8(99)
+ 208 004e 0E94 0000 		call uart_putchar
+ 209               	.LVL11:
+  43:main.c        ****         printf("Please enter your last name:");
+ 210               		.loc 1 43 0 discriminator 1
+ 211 0052 DF92      		push r13
+ 212 0054 CF92      		push r12
+ 213 0056 0E94 0000 		call printf
+ 214               	.LVL12:
+  44:main.c        ****         receiveWord(RESPONSEBUFFER,&uart_response);
+ 215               		.loc 1 44 0 discriminator 1
+ 216 005a B801      		movw r22,r16
+ 217 005c 82E3      		ldi r24,lo8(50)
+ 218 005e 90E0      		ldi r25,0
+ 219 0060 0E94 0000 		call receiveWord
+ 220               	.LVL13:
+ 221               		.loc 1 45 0 discriminator 1
+ 222 0064 1F93      		push r17
+ 223 0066 0F93      		push r16
+ 224 0068 FF92      		push r15
+ 225 006a EF92      		push r14
+ 226 006c 0E94 0000 		call printf
+ 227               	.LVL14:
+ 228 0070 0F90      		pop __tmp_reg__
+ 229 0072 0F90      		pop __tmp_reg__
+ 230 0074 0F90      		pop __tmp_reg__
+ 231 0076 0F90      		pop __tmp_reg__
+ 232 0078 0F90      		pop __tmp_reg__
+ 233 007a 0F90      		pop __tmp_reg__
+ 234 007c 00C0      		rjmp .L18
+ 235               		.cfi_endproc
+ 236               	.LFE8:
+ 238               		.text
+ 239               	.Letext0:
+ 240               		.file 2 "/usr/local/CrossPack-AVR-20131216/avr/include/stdint.h"
+ 241               		.file 3 "/usr/local/CrossPack-AVR-20131216/avr/include/stdio.h"
+ 242               		.file 4 "uart.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:2      *ABS*:0000003e __SP_H__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:3      *ABS*:0000003d __SP_L__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:4      *ABS*:0000003f __SREG__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:12     .text:00000000 receiveWord
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccdzArdQ.s:146    .text.startup:00000000 main
+
+UNDEFINED SYMBOLS
+__iob
+fgetc
+fputc
+uart_init
+uart_tx
+uart_rx
+uart_putchar
+printf
+__do_copy_data

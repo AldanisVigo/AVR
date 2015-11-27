@@ -1,0 +1,1135 @@
+   1               		.file	"digole.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	lcdInit
+  12               	lcdInit:
+  13               	.LFB8:
+  14               		.file 1 "digole.c"
+   1:digole.c      **** //
+   2:digole.c      **** //  digole.c
+   3:digole.c      **** //  
+   4:digole.c      **** //
+   5:digole.c      **** //  Created by Aldanis Vigo on 11/26/15.
+   6:digole.c      **** //
+   7:digole.c      **** //
+   8:digole.c      **** 
+   9:digole.c      **** #include <stdio.h>
+  10:digole.c      **** #include <avr/io.h>
+  11:digole.c      **** #ifndef _AVR_/_DELAY_H
+  12:digole.c      **** #include <avr/delay.h>
+  13:digole.c      **** #endif
+  14:digole.c      **** #include <avr/pgmspace.h>
+  15:digole.c      **** #include "digole.h"
+  16:digole.c      **** #include "uart.h"
+  17:digole.c      **** 
+  18:digole.c      **** void lcdInit(){
+  15               		.loc 1 18 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  19:digole.c      ****     stdin = &uart_rx;
+  21               		.loc 1 19 0
+  22 0000 80E0      		ldi r24,lo8(uart_rx)
+  23 0002 90E0      		ldi r25,hi8(uart_rx)
+  24 0004 9093 0000 		sts __iob+1,r25
+  25 0008 8093 0000 		sts __iob,r24
+  20:digole.c      ****     stdout = &uart_tx;
+  26               		.loc 1 20 0
+  27 000c 80E0      		ldi r24,lo8(uart_tx)
+  28 000e 90E0      		ldi r25,hi8(uart_tx)
+  29 0010 9093 0000 		sts __iob+2+1,r25
+  30 0014 8093 0000 		sts __iob+2,r24
+  31 0018 0895      		ret
+  32               		.cfi_endproc
+  33               	.LFE8:
+  35               	.global	lcdWrite
+  37               	lcdWrite:
+  38               	.LFB9:
+  21:digole.c      **** }
+  22:digole.c      **** void lcdWrite(unsigned int data){
+  39               		.loc 1 22 0
+  40               		.cfi_startproc
+  41               	.LVL0:
+  42 001a CF93      		push r28
+  43               	.LCFI0:
+  44               		.cfi_def_cfa_offset 3
+  45               		.cfi_offset 28, -2
+  46 001c DF93      		push r29
+  47               	.LCFI1:
+  48               		.cfi_def_cfa_offset 4
+  49               		.cfi_offset 29, -3
+  50               	/* prologue: function */
+  51               	/* frame size = 0 */
+  52               	/* stack size = 2 */
+  53               	.L__stack_usage = 2
+  54 001e EC01      		movw r28,r24
+  23:digole.c      ****     if(data < 255){
+  55               		.loc 1 23 0
+  56 0020 8F3F      		cpi r24,-1
+  57 0022 9105      		cpc r25,__zero_reg__
+  58 0024 00F0      		brlo .L4
+  59               	.LVL1:
+  60               	.LBB9:
+  61               	.LBB10:
+  24:digole.c      ****         printf("%c",data);
+  25:digole.c      ****     }
+  26:digole.c      ****     else{
+  27:digole.c      ****         printf("%c",(unsigned int)255);
+  62               		.loc 1 27 0
+  63 0026 8FEF      		ldi r24,lo8(-1)
+  64 0028 90E0      		ldi r25,0
+  65               	.LVL2:
+  66 002a 0E94 0000 		call putchar
+  67               	.LVL3:
+  28:digole.c      ****         printf("%c",(unsigned int)(255 - data));
+  68               		.loc 1 28 0
+  69 002e 8FEF      		ldi r24,lo8(-1)
+  70 0030 90E0      		ldi r25,0
+  71 0032 8C1B      		sub r24,r28
+  72 0034 9D0B      		sbc r25,r29
+  73               	.LVL4:
+  74               	.L4:
+  75               	/* epilogue start */
+  76               	.LBE10:
+  77               	.LBE9:
+  29:digole.c      ****     }
+  30:digole.c      **** }
+  78               		.loc 1 30 0
+  79 0036 DF91      		pop r29
+  80 0038 CF91      		pop r28
+  81               	.LVL5:
+  82               	.LBB12:
+  83               	.LBB11:
+  28:digole.c      ****         printf("%c",(unsigned int)(255 - data));
+  84               		.loc 1 28 0
+  85 003a 0C94 0000 		jmp putchar
+  86               	.LVL6:
+  87               	.LBE11:
+  88               	.LBE12:
+  89               		.cfi_endproc
+  90               	.LFE9:
+  92               		.section	.rodata.str1.1,"aMS",@progbits,1
+  93               	.LC0:
+  94 0000 5354 4352 		.string	"STCR"
+  94      00
+  95               	.LC1:
+  96 0005 80C0 94D4 		.string	"\200\300\224\324"
+  96      00
+  97               		.text
+  98               	.global	gotoPos
+ 100               	gotoPos:
+ 101               	.LFB10:
+  31:digole.c      **** void gotoPos(uint8_t X, uint8_t Y){
+ 102               		.loc 1 31 0
+ 103               		.cfi_startproc
+ 104               	.LVL7:
+ 105 003e 1F93      		push r17
+ 106               	.LCFI2:
+ 107               		.cfi_def_cfa_offset 3
+ 108               		.cfi_offset 17, -2
+ 109 0040 CF93      		push r28
+ 110               	.LCFI3:
+ 111               		.cfi_def_cfa_offset 4
+ 112               		.cfi_offset 28, -3
+ 113 0042 DF93      		push r29
+ 114               	.LCFI4:
+ 115               		.cfi_def_cfa_offset 5
+ 116               		.cfi_offset 29, -4
+ 117 0044 1F92      		push __zero_reg__
+ 118               	.LCFI5:
+ 119               		.cfi_def_cfa_offset 6
+ 120 0046 CDB7      		in r28,__SP_L__
+ 121 0048 DEB7      		in r29,__SP_H__
+ 122               	.LCFI6:
+ 123               		.cfi_def_cfa_register 28
+ 124               	/* prologue: function */
+ 125               	/* frame size = 1 */
+ 126               	/* stack size = 4 */
+ 127               	.L__stack_usage = 4
+ 128 004a 182F      		mov r17,r24
+  32:digole.c      ****     printf("STCR");
+ 129               		.loc 1 32 0
+ 130 004c 20E0      		ldi r18,lo8(.LC0)
+ 131 004e 30E0      		ldi r19,hi8(.LC0)
+ 132 0050 3F93      		push r19
+ 133 0052 2F93      		push r18
+ 134 0054 6983      		std Y+1,r22
+ 135 0056 0E94 0000 		call printf
+ 136               	.LVL8:
+  33:digole.c      ****     lcdWrite((unsigned int)X);
+ 137               		.loc 1 33 0
+ 138 005a 812F      		mov r24,r17
+ 139 005c 90E0      		ldi r25,0
+ 140 005e 0E94 0000 		call lcdWrite
+ 141               	.LVL9:
+  34:digole.c      ****     lcdWrite((unsigned int)Y);
+ 142               		.loc 1 34 0
+ 143 0062 6981      		ldd r22,Y+1
+ 144 0064 862F      		mov r24,r22
+ 145 0066 90E0      		ldi r25,0
+ 146 0068 0E94 0000 		call lcdWrite
+ 147               	.LVL10:
+  35:digole.c      ****     printf("\x80\xC0\x94\xD4");
+ 148               		.loc 1 35 0
+ 149 006c 80E0      		ldi r24,lo8(.LC1)
+ 150 006e 90E0      		ldi r25,hi8(.LC1)
+ 151 0070 9F93      		push r25
+ 152 0072 8F93      		push r24
+ 153 0074 0E94 0000 		call printf
+ 154               	.LVL11:
+ 155               	/* epilogue start */
+  36:digole.c      **** }
+ 156               		.loc 1 36 0
+ 157 0078 0F90      		pop __tmp_reg__
+ 158 007a 0F90      		pop __tmp_reg__
+ 159 007c 0F90      		pop __tmp_reg__
+ 160 007e 0F90      		pop __tmp_reg__
+ 161 0080 0F90      		pop __tmp_reg__
+ 162 0082 DF91      		pop r29
+ 163 0084 CF91      		pop r28
+ 164 0086 1F91      		pop r17
+ 165               	.LVL12:
+ 166 0088 0895      		ret
+ 167               		.cfi_endproc
+ 168               	.LFE10:
+ 170               		.section	.rodata.str1.1
+ 171               	.LC2:
+ 172 000a 5450 00   		.string	"TP"
+ 173               	.LC3:
+ 174 000d 4750 00   		.string	"GP"
+ 175               		.text
+ 176               	.global	setPrintPosition
+ 178               	setPrintPosition:
+ 179               	.LFB11:
+  37:digole.c      **** void setPrintPosition(unsigned int x, unsigned int y, uint8_t graphicsmode){
+ 180               		.loc 1 37 0
+ 181               		.cfi_startproc
+ 182               	.LVL13:
+ 183 008a 0F93      		push r16
+ 184               	.LCFI7:
+ 185               		.cfi_def_cfa_offset 3
+ 186               		.cfi_offset 16, -2
+ 187 008c 1F93      		push r17
+ 188               	.LCFI8:
+ 189               		.cfi_def_cfa_offset 4
+ 190               		.cfi_offset 17, -3
+ 191 008e CF93      		push r28
+ 192               	.LCFI9:
+ 193               		.cfi_def_cfa_offset 5
+ 194               		.cfi_offset 28, -4
+ 195 0090 DF93      		push r29
+ 196               	.LCFI10:
+ 197               		.cfi_def_cfa_offset 6
+ 198               		.cfi_offset 29, -5
+ 199               	/* prologue: function */
+ 200               	/* frame size = 0 */
+ 201               	/* stack size = 4 */
+ 202               	.L__stack_usage = 4
+ 203 0092 EC01      		movw r28,r24
+ 204 0094 8B01      		movw r16,r22
+  38:digole.c      ****     if(graphicsmode == 0){
+ 205               		.loc 1 38 0
+ 206 0096 4111      		cpse r20,__zero_reg__
+ 207 0098 00C0      		rjmp .L8
+  39:digole.c      ****         printf("TP");
+ 208               		.loc 1 39 0
+ 209 009a 80E0      		ldi r24,lo8(.LC2)
+ 210 009c 90E0      		ldi r25,hi8(.LC2)
+ 211               	.LVL14:
+ 212 009e 00C0      		rjmp .L9
+ 213               	.LVL15:
+ 214               	.L8:
+  40:digole.c      ****         lcdWrite(x);
+  41:digole.c      ****         lcdWrite(y);
+  42:digole.c      ****     }
+  43:digole.c      ****     else{
+  44:digole.c      ****         printf("GP");
+ 215               		.loc 1 44 0
+ 216 00a0 80E0      		ldi r24,lo8(.LC3)
+ 217 00a2 90E0      		ldi r25,hi8(.LC3)
+ 218               	.LVL16:
+ 219               	.L9:
+ 220 00a4 9F93      		push r25
+ 221               	.LCFI11:
+ 222               		.cfi_def_cfa_offset 7
+ 223 00a6 8F93      		push r24
+ 224               	.LCFI12:
+ 225               		.cfi_def_cfa_offset 8
+ 226 00a8 0E94 0000 		call printf
+ 227               	.LVL17:
+  45:digole.c      ****         lcdWrite(x);
+ 228               		.loc 1 45 0
+ 229 00ac CE01      		movw r24,r28
+ 230 00ae 0E94 0000 		call lcdWrite
+ 231               	.LVL18:
+  46:digole.c      ****         lcdWrite(y);
+ 232               		.loc 1 46 0
+ 233 00b2 0F90      		pop __tmp_reg__
+ 234 00b4 0F90      		pop __tmp_reg__
+ 235               	.LCFI13:
+ 236               		.cfi_def_cfa_offset 6
+ 237 00b6 C801      		movw r24,r16
+ 238               	/* epilogue start */
+  47:digole.c      ****     }
+  48:digole.c      **** }
+ 239               		.loc 1 48 0
+ 240 00b8 DF91      		pop r29
+ 241 00ba CF91      		pop r28
+ 242               	.LVL19:
+ 243 00bc 1F91      		pop r17
+ 244 00be 0F91      		pop r16
+ 245               	.LVL20:
+  46:digole.c      ****         lcdWrite(y);
+ 246               		.loc 1 46 0
+ 247 00c0 0C94 0000 		jmp lcdWrite
+ 248               	.LVL21:
+ 249               		.cfi_endproc
+ 250               	.LFE11:
+ 252               		.section	.rodata.str1.1
+ 253               	.LC4:
+ 254 0010 5454 00   		.string	"TT"
+ 255               		.text
+ 256               	.global	writeStrAtPos
+ 258               	writeStrAtPos:
+ 259               	.LFB12:
+  49:digole.c      **** void writeStrAtPos(unsigned int x, unsigned int y, const char* str){
+ 260               		.loc 1 49 0
+ 261               		.cfi_startproc
+ 262               	.LVL22:
+ 263 00c4 CF93      		push r28
+ 264               	.LCFI14:
+ 265               		.cfi_def_cfa_offset 3
+ 266               		.cfi_offset 28, -2
+ 267 00c6 DF93      		push r29
+ 268               	.LCFI15:
+ 269               		.cfi_def_cfa_offset 4
+ 270               		.cfi_offset 29, -3
+ 271               	/* prologue: function */
+ 272               	/* frame size = 0 */
+ 273               	/* stack size = 2 */
+ 274               	.L__stack_usage = 2
+ 275 00c8 EA01      		movw r28,r20
+  50:digole.c      ****     setPrintPosition(x,y,0);
+ 276               		.loc 1 50 0
+ 277 00ca 40E0      		ldi r20,0
+ 278               	.LVL23:
+ 279 00cc 0E94 0000 		call setPrintPosition
+ 280               	.LVL24:
+  51:digole.c      ****     printf("TT");
+ 281               		.loc 1 51 0
+ 282 00d0 20E0      		ldi r18,lo8(.LC4)
+ 283 00d2 30E0      		ldi r19,hi8(.LC4)
+ 284 00d4 3F93      		push r19
+ 285               	.LCFI16:
+ 286               		.cfi_def_cfa_offset 5
+ 287 00d6 2F93      		push r18
+ 288               	.LCFI17:
+ 289               		.cfi_def_cfa_offset 6
+ 290 00d8 0E94 0000 		call printf
+ 291               	.LVL25:
+  52:digole.c      ****     puts(str);
+ 292               		.loc 1 52 0
+ 293 00dc CE01      		movw r24,r28
+ 294 00de 0E94 0000 		call puts
+ 295               	.LVL26:
+  53:digole.c      ****     printf("%c",(uint8_t)0);
+ 296               		.loc 1 53 0
+ 297 00e2 0F90      		pop __tmp_reg__
+ 298 00e4 0F90      		pop __tmp_reg__
+ 299               	.LCFI18:
+ 300               		.cfi_def_cfa_offset 4
+ 301 00e6 80E0      		ldi r24,0
+ 302 00e8 90E0      		ldi r25,0
+ 303               	/* epilogue start */
+  54:digole.c      **** }
+ 304               		.loc 1 54 0
+ 305 00ea DF91      		pop r29
+ 306 00ec CF91      		pop r28
+ 307               	.LVL27:
+  53:digole.c      ****     printf("%c",(uint8_t)0);
+ 308               		.loc 1 53 0
+ 309 00ee 0C94 0000 		jmp putchar
+ 310               	.LVL28:
+ 311               		.cfi_endproc
+ 312               	.LFE12:
+ 314               	.global	writeStr
+ 316               	writeStr:
+ 317               	.LFB13:
+  55:digole.c      **** void writeStr(char* str){
+ 318               		.loc 1 55 0
+ 319               		.cfi_startproc
+ 320               	.LVL29:
+ 321 00f2 CF93      		push r28
+ 322               	.LCFI19:
+ 323               		.cfi_def_cfa_offset 3
+ 324               		.cfi_offset 28, -2
+ 325 00f4 DF93      		push r29
+ 326               	.LCFI20:
+ 327               		.cfi_def_cfa_offset 4
+ 328               		.cfi_offset 29, -3
+ 329               	/* prologue: function */
+ 330               	/* frame size = 0 */
+ 331               	/* stack size = 2 */
+ 332               	.L__stack_usage = 2
+ 333 00f6 EC01      		movw r28,r24
+  56:digole.c      ****     printf("TT");
+ 334               		.loc 1 56 0
+ 335 00f8 20E0      		ldi r18,lo8(.LC4)
+ 336 00fa 30E0      		ldi r19,hi8(.LC4)
+ 337 00fc 3F93      		push r19
+ 338               	.LCFI21:
+ 339               		.cfi_def_cfa_offset 5
+ 340 00fe 2F93      		push r18
+ 341               	.LCFI22:
+ 342               		.cfi_def_cfa_offset 6
+ 343 0100 0E94 0000 		call printf
+ 344               	.LVL30:
+  57:digole.c      ****     puts(str);
+ 345               		.loc 1 57 0
+ 346 0104 0F90      		pop __tmp_reg__
+ 347 0106 0F90      		pop __tmp_reg__
+ 348               	.LCFI23:
+ 349               		.cfi_def_cfa_offset 4
+ 350 0108 CE01      		movw r24,r28
+ 351               	/* epilogue start */
+  58:digole.c      **** }
+ 352               		.loc 1 58 0
+ 353 010a DF91      		pop r29
+ 354 010c CF91      		pop r28
+ 355               	.LVL31:
+  57:digole.c      ****     puts(str);
+ 356               		.loc 1 57 0
+ 357 010e 0C94 0000 		jmp puts
+ 358               	.LVL32:
+ 359               		.cfi_endproc
+ 360               	.LFE13:
+ 362               		.section	.rodata.str1.1
+ 363               	.LC5:
+ 364 0013 4353 00   		.string	"CS"
+ 365               		.text
+ 366               	.global	toggleCursor
+ 368               	toggleCursor:
+ 369               	.LFB14:
+  59:digole.c      **** void toggleCursor(uint8_t val){
+ 370               		.loc 1 59 0
+ 371               		.cfi_startproc
+ 372               	.LVL33:
+ 373 0112 CF93      		push r28
+ 374               	.LCFI24:
+ 375               		.cfi_def_cfa_offset 3
+ 376               		.cfi_offset 28, -2
+ 377               	/* prologue: function */
+ 378               	/* frame size = 0 */
+ 379               	/* stack size = 1 */
+ 380               	.L__stack_usage = 1
+ 381 0114 C82F      		mov r28,r24
+  60:digole.c      ****     //val = 1 ON
+  61:digole.c      ****     //val = 0 OFF
+  62:digole.c      ****     printf("CS");
+ 382               		.loc 1 62 0
+ 383 0116 20E0      		ldi r18,lo8(.LC5)
+ 384 0118 30E0      		ldi r19,hi8(.LC5)
+ 385 011a 3F93      		push r19
+ 386               	.LCFI25:
+ 387               		.cfi_def_cfa_offset 4
+ 388 011c 2F93      		push r18
+ 389               	.LCFI26:
+ 390               		.cfi_def_cfa_offset 5
+ 391 011e 0E94 0000 		call printf
+ 392               	.LVL34:
+  63:digole.c      ****     lcdWrite(val);
+ 393               		.loc 1 63 0
+ 394 0122 0F90      		pop __tmp_reg__
+ 395 0124 0F90      		pop __tmp_reg__
+ 396               	.LCFI27:
+ 397               		.cfi_def_cfa_offset 3
+ 398 0126 8C2F      		mov r24,r28
+ 399 0128 90E0      		ldi r25,0
+ 400               	/* epilogue start */
+  64:digole.c      **** }
+ 401               		.loc 1 64 0
+ 402 012a CF91      		pop r28
+ 403               	.LVL35:
+  63:digole.c      ****     lcdWrite(val);
+ 404               		.loc 1 63 0
+ 405 012c 0C94 0000 		jmp lcdWrite
+ 406               	.LVL36:
+ 407               		.cfi_endproc
+ 408               	.LFE14:
+ 410               		.section	.rodata.str1.1
+ 411               	.LC6:
+ 412 0016 424C 3000 		.string	"BL0"
+ 413               	.LC7:
+ 414 001a 424C 3100 		.string	"BL1"
+ 415               		.text
+ 416               	.global	lcdBlink
+ 418               	lcdBlink:
+ 419               	.LFB15:
+  65:digole.c      **** void lcdBlink(uint8_t reps){
+ 420               		.loc 1 65 0
+ 421               		.cfi_startproc
+ 422               	.LVL37:
+ 423 0130 CF92      		push r12
+ 424               	.LCFI28:
+ 425               		.cfi_def_cfa_offset 3
+ 426               		.cfi_offset 12, -2
+ 427 0132 DF92      		push r13
+ 428               	.LCFI29:
+ 429               		.cfi_def_cfa_offset 4
+ 430               		.cfi_offset 13, -3
+ 431 0134 EF92      		push r14
+ 432               	.LCFI30:
+ 433               		.cfi_def_cfa_offset 5
+ 434               		.cfi_offset 14, -4
+ 435 0136 FF92      		push r15
+ 436               	.LCFI31:
+ 437               		.cfi_def_cfa_offset 6
+ 438               		.cfi_offset 15, -5
+ 439 0138 0F93      		push r16
+ 440               	.LCFI32:
+ 441               		.cfi_def_cfa_offset 7
+ 442               		.cfi_offset 16, -6
+ 443 013a 1F93      		push r17
+ 444               	.LCFI33:
+ 445               		.cfi_def_cfa_offset 8
+ 446               		.cfi_offset 17, -7
+ 447 013c CF93      		push r28
+ 448               	.LCFI34:
+ 449               		.cfi_def_cfa_offset 9
+ 450               		.cfi_offset 28, -8
+ 451 013e DF93      		push r29
+ 452               	.LCFI35:
+ 453               		.cfi_def_cfa_offset 10
+ 454               		.cfi_offset 29, -9
+ 455               	/* prologue: function */
+ 456               	/* frame size = 0 */
+ 457               	/* stack size = 8 */
+ 458               	.L__stack_usage = 8
+ 459               	.LVL38:
+ 460               	.LBB13:
+  66:digole.c      ****     for(int rep = 0;rep < reps;rep++){
+ 461               		.loc 1 66 0
+ 462 0140 C0E0      		ldi r28,0
+ 463 0142 D0E0      		ldi r29,0
+ 464 0144 C82E      		mov r12,r24
+ 465 0146 D12C      		mov r13,__zero_reg__
+  67:digole.c      ****         printf("BL0");
+ 466               		.loc 1 67 0
+ 467 0148 80E0      		ldi r24,lo8(.LC6)
+ 468 014a E82E      		mov r14,r24
+ 469 014c 80E0      		ldi r24,hi8(.LC6)
+ 470 014e F82E      		mov r15,r24
+ 471               	.LVL39:
+  68:digole.c      ****         _delay_ms(500);
+  69:digole.c      ****         printf("BL1");
+ 472               		.loc 1 69 0
+ 473 0150 00E0      		ldi r16,lo8(.LC7)
+ 474 0152 10E0      		ldi r17,hi8(.LC7)
+ 475               	.LVL40:
+ 476               	.L14:
+  66:digole.c      ****     for(int rep = 0;rep < reps;rep++){
+ 477               		.loc 1 66 0 discriminator 1
+ 478 0154 CC15      		cp r28,r12
+ 479 0156 DD05      		cpc r29,r13
+ 480 0158 04F4      		brge .L16
+  67:digole.c      ****         printf("BL0");
+ 481               		.loc 1 67 0 discriminator 2
+ 482 015a FF92      		push r15
+ 483               	.LCFI36:
+ 484               		.cfi_def_cfa_offset 11
+ 485 015c EF92      		push r14
+ 486               	.LCFI37:
+ 487               		.cfi_def_cfa_offset 12
+ 488 015e 0E94 0000 		call printf
+ 489               	.LVL41:
+ 490               	.LBB14:
+ 491               	.LBB15:
+ 492               		.file 2 "/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h"
+   1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   6:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   9:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  12:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      distribution.
+  16:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  17:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  21:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  33:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* $Id$ */
+  34:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  35:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  38:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  41:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  42:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <math.h>
+  45:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  46:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \file */
+  47:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \code
+  49:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \endcode
+  53:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  54:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     used.
+  58:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  59:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  68:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     routines linked into the application.
+  76:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  77:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  81:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** */
+  82:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  83:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  87:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  88:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef F_CPU
+  89:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  93:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  94:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  97:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  98:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #  include <math.h>
+ 102:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 103:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 104:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 105:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 107:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 109:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 112:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 114:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 120:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 125:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 129:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 132:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 140:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 141:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 142:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 144:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 145:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 148:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 149:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 152:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 155:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 158:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 159:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 160:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 493               		.loc 2 163 0 discriminator 2
+ 494 0162 2FEF      		ldi r18,lo8(1599999)
+ 495 0164 89E6      		ldi r24,hi8(1599999)
+ 496 0166 98E1      		ldi r25,hlo8(1599999)
+ 497 0168 2150      		1: subi r18,1
+ 498 016a 8040      		sbci r24,0
+ 499 016c 9040      		sbci r25,0
+ 500 016e 01F4      		brne 1b
+ 501 0170 00C0      		rjmp .
+ 502 0172 0000      		nop
+ 503               	.LBE15:
+ 504               	.LBE14:
+ 505               		.loc 1 69 0 discriminator 2
+ 506 0174 1F93      		push r17
+ 507               	.LCFI38:
+ 508               		.cfi_def_cfa_offset 13
+ 509 0176 0F93      		push r16
+ 510               	.LCFI39:
+ 511               		.cfi_def_cfa_offset 14
+ 512 0178 0E94 0000 		call printf
+ 513               	.LVL42:
+ 514               	.LBB16:
+ 515               	.LBB17:
+ 516               		.loc 2 163 0 discriminator 2
+ 517 017c 2FEF      		ldi r18,lo8(1599999)
+ 518 017e 89E6      		ldi r24,hi8(1599999)
+ 519 0180 98E1      		ldi r25,hlo8(1599999)
+ 520 0182 2150      		1: subi r18,1
+ 521 0184 8040      		sbci r24,0
+ 522 0186 9040      		sbci r25,0
+ 523 0188 01F4      		brne 1b
+ 524 018a 00C0      		rjmp .
+ 525 018c 0000      		nop
+ 526               	.LBE17:
+ 527               	.LBE16:
+  66:digole.c      ****     for(int rep = 0;rep < reps;rep++){
+ 528               		.loc 1 66 0 discriminator 2
+ 529 018e 2196      		adiw r28,1
+ 530               	.LVL43:
+ 531 0190 0F90      		pop __tmp_reg__
+ 532 0192 0F90      		pop __tmp_reg__
+ 533 0194 0F90      		pop __tmp_reg__
+ 534 0196 0F90      		pop __tmp_reg__
+ 535               	.LCFI40:
+ 536               		.cfi_def_cfa_offset 10
+ 537 0198 00C0      		rjmp .L14
+ 538               	.LVL44:
+ 539               	.L16:
+ 540               	/* epilogue start */
+ 541               	.LBE13:
+  70:digole.c      ****         _delay_ms(500);
+  71:digole.c      ****     }
+  72:digole.c      **** }
+ 542               		.loc 1 72 0
+ 543 019a DF91      		pop r29
+ 544 019c CF91      		pop r28
+ 545               	.LVL45:
+ 546 019e 1F91      		pop r17
+ 547 01a0 0F91      		pop r16
+ 548 01a2 FF90      		pop r15
+ 549 01a4 EF90      		pop r14
+ 550 01a6 DF90      		pop r13
+ 551 01a8 CF90      		pop r12
+ 552               	.LVL46:
+ 553 01aa 0895      		ret
+ 554               		.cfi_endproc
+ 555               	.LFE15:
+ 557               		.section	.rodata.str1.1
+ 558               	.LC8:
+ 559 001e 434C 00   		.string	"CL"
+ 560               		.text
+ 561               	.global	clearScreen
+ 563               	clearScreen:
+ 564               	.LFB16:
+  73:digole.c      **** void clearScreen(void){
+ 565               		.loc 1 73 0
+ 566               		.cfi_startproc
+ 567               	/* prologue: function */
+ 568               	/* frame size = 0 */
+ 569               	/* stack size = 0 */
+ 570               	.L__stack_usage = 0
+  74:digole.c      ****     printf("CL");
+ 571               		.loc 1 74 0
+ 572 01ac 80E0      		ldi r24,lo8(.LC8)
+ 573 01ae 90E0      		ldi r25,hi8(.LC8)
+ 574 01b0 9F93      		push r25
+ 575               	.LCFI41:
+ 576               		.cfi_def_cfa_offset 3
+ 577 01b2 8F93      		push r24
+ 578               	.LCFI42:
+ 579               		.cfi_def_cfa_offset 4
+ 580 01b4 0E94 0000 		call printf
+ 581               	.LVL47:
+ 582 01b8 0F90      		pop __tmp_reg__
+ 583 01ba 0F90      		pop __tmp_reg__
+ 584               	.LCFI43:
+ 585               		.cfi_def_cfa_offset 2
+ 586 01bc 0895      		ret
+ 587               		.cfi_endproc
+ 588               	.LFE16:
+ 590               		.section	.rodata.str1.1
+ 591               	.LC9:
+ 592 0021 4C4E 00   		.string	"LN"
+ 593               		.text
+ 594               	.global	drawLine
+ 596               	drawLine:
+ 597               	.LFB17:
+  75:digole.c      **** }
+  76:digole.c      **** void drawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2){
+ 598               		.loc 1 76 0
+ 599               		.cfi_startproc
+ 600               	.LVL48:
+ 601 01be 1F93      		push r17
+ 602               	.LCFI44:
+ 603               		.cfi_def_cfa_offset 3
+ 604               		.cfi_offset 17, -2
+ 605 01c0 CF93      		push r28
+ 606               	.LCFI45:
+ 607               		.cfi_def_cfa_offset 4
+ 608               		.cfi_offset 28, -3
+ 609 01c2 DF93      		push r29
+ 610               	.LCFI46:
+ 611               		.cfi_def_cfa_offset 5
+ 612               		.cfi_offset 29, -4
+ 613 01c4 00D0      		rcall .
+ 614 01c6 1F92      		push __zero_reg__
+ 615               	.LCFI47:
+ 616               		.cfi_def_cfa_offset 8
+ 617 01c8 CDB7      		in r28,__SP_L__
+ 618 01ca DEB7      		in r29,__SP_H__
+ 619               	.LCFI48:
+ 620               		.cfi_def_cfa_register 28
+ 621               	/* prologue: function */
+ 622               	/* frame size = 3 */
+ 623               	/* stack size = 6 */
+ 624               	.L__stack_usage = 6
+ 625 01cc 182F      		mov r17,r24
+  77:digole.c      ****     printf("LN");
+ 626               		.loc 1 77 0
+ 627 01ce E0E0      		ldi r30,lo8(.LC9)
+ 628 01d0 F0E0      		ldi r31,hi8(.LC9)
+ 629 01d2 FF93      		push r31
+ 630 01d4 EF93      		push r30
+ 631 01d6 2B83      		std Y+3,r18
+ 632 01d8 4A83      		std Y+2,r20
+ 633 01da 6983      		std Y+1,r22
+ 634 01dc 0E94 0000 		call printf
+ 635               	.LVL49:
+  78:digole.c      ****     lcdWrite(x1);
+ 636               		.loc 1 78 0
+ 637 01e0 812F      		mov r24,r17
+ 638 01e2 90E0      		ldi r25,0
+ 639 01e4 0E94 0000 		call lcdWrite
+ 640               	.LVL50:
+  79:digole.c      ****     lcdWrite(y1);
+ 641               		.loc 1 79 0
+ 642 01e8 6981      		ldd r22,Y+1
+ 643 01ea 862F      		mov r24,r22
+ 644 01ec 90E0      		ldi r25,0
+ 645 01ee 0E94 0000 		call lcdWrite
+ 646               	.LVL51:
+  80:digole.c      ****     lcdWrite(x2);
+ 647               		.loc 1 80 0
+ 648 01f2 4A81      		ldd r20,Y+2
+ 649 01f4 842F      		mov r24,r20
+ 650 01f6 90E0      		ldi r25,0
+ 651 01f8 0E94 0000 		call lcdWrite
+ 652               	.LVL52:
+  81:digole.c      ****     lcdWrite(y2);
+ 653               		.loc 1 81 0
+ 654 01fc 2B81      		ldd r18,Y+3
+ 655 01fe 822F      		mov r24,r18
+ 656 0200 90E0      		ldi r25,0
+ 657               	/* epilogue start */
+  82:digole.c      **** }
+ 658               		.loc 1 82 0
+ 659 0202 0F90      		pop __tmp_reg__
+ 660 0204 0F90      		pop __tmp_reg__
+ 661 0206 0F90      		pop __tmp_reg__
+ 662 0208 0F90      		pop __tmp_reg__
+ 663 020a 0F90      		pop __tmp_reg__
+ 664 020c DF91      		pop r29
+ 665 020e CF91      		pop r28
+ 666 0210 1F91      		pop r17
+ 667               	.LVL53:
+  81:digole.c      ****     lcdWrite(y2);
+ 668               		.loc 1 81 0
+ 669 0212 0C94 0000 		jmp lcdWrite
+ 670               	.LVL54:
+ 671               		.cfi_endproc
+ 672               	.LFE17:
+ 674               		.section	.rodata.str1.1
+ 675               	.LC10:
+ 676 0024 4449 4D00 		.string	"DIM"
+ 677               		.text
+ 678               	.global	drawBitmap
+ 680               	drawBitmap:
+ 681               	.LFB18:
+  83:digole.c      **** 
+  84:digole.c      **** void drawBitmap(short x,short y,short width,short height,const uint8_t *bitmap){
+ 682               		.loc 1 84 0
+ 683               		.cfi_startproc
+ 684               	.LVL55:
+ 685 0216 AF92      		push r10
+ 686               	.LCFI49:
+ 687               		.cfi_def_cfa_offset 3
+ 688               		.cfi_offset 10, -2
+ 689 0218 BF92      		push r11
+ 690               	.LCFI50:
+ 691               		.cfi_def_cfa_offset 4
+ 692               		.cfi_offset 11, -3
+ 693 021a CF92      		push r12
+ 694               	.LCFI51:
+ 695               		.cfi_def_cfa_offset 5
+ 696               		.cfi_offset 12, -4
+ 697 021c DF92      		push r13
+ 698               	.LCFI52:
+ 699               		.cfi_def_cfa_offset 6
+ 700               		.cfi_offset 13, -5
+ 701 021e EF92      		push r14
+ 702               	.LCFI53:
+ 703               		.cfi_def_cfa_offset 7
+ 704               		.cfi_offset 14, -6
+ 705 0220 FF92      		push r15
+ 706               	.LCFI54:
+ 707               		.cfi_def_cfa_offset 8
+ 708               		.cfi_offset 15, -7
+ 709 0222 0F93      		push r16
+ 710               	.LCFI55:
+ 711               		.cfi_def_cfa_offset 9
+ 712               		.cfi_offset 16, -8
+ 713 0224 1F93      		push r17
+ 714               	.LCFI56:
+ 715               		.cfi_def_cfa_offset 10
+ 716               		.cfi_offset 17, -9
+ 717 0226 CF93      		push r28
+ 718               	.LCFI57:
+ 719               		.cfi_def_cfa_offset 11
+ 720               		.cfi_offset 28, -10
+ 721 0228 DF93      		push r29
+ 722               	.LCFI58:
+ 723               		.cfi_def_cfa_offset 12
+ 724               		.cfi_offset 29, -11
+ 725               	/* prologue: function */
+ 726               	/* frame size = 0 */
+ 727               	/* stack size = 10 */
+ 728               	.L__stack_usage = 10
+ 729 022a 6C01      		movw r12,r24
+ 730 022c 5B01      		movw r10,r22
+ 731 022e EA01      		movw r28,r20
+ 732 0230 7901      		movw r14,r18
+ 733               	.LVL56:
+  85:digole.c      ****         uint8_t i = 0;
+  86:digole.c      ****         if ((width & 7) != 0)
+  87:digole.c      ****             i = 1;
+  88:digole.c      ****     
+  89:digole.c      ****         printf("DIM");
+ 734               		.loc 1 89 0
+ 735 0232 20E0      		ldi r18,lo8(.LC10)
+ 736 0234 30E0      		ldi r19,hi8(.LC10)
+ 737               	.LVL57:
+ 738 0236 3F93      		push r19
+ 739               	.LCFI59:
+ 740               		.cfi_def_cfa_offset 13
+ 741 0238 2F93      		push r18
+ 742               	.LCFI60:
+ 743               		.cfi_def_cfa_offset 14
+ 744 023a 0E94 0000 		call printf
+ 745               	.LVL58:
+  90:digole.c      ****         lcdWrite(x); //x;
+ 746               		.loc 1 90 0
+ 747 023e C601      		movw r24,r12
+ 748 0240 0E94 0000 		call lcdWrite
+ 749               	.LVL59:
+  91:digole.c      ****         lcdWrite(y);
+ 750               		.loc 1 91 0
+ 751 0244 C501      		movw r24,r10
+ 752 0246 0E94 0000 		call lcdWrite
+ 753               	.LVL60:
+  92:digole.c      ****         lcdWrite(width);
+ 754               		.loc 1 92 0
+ 755 024a CE01      		movw r24,r28
+ 756 024c 0E94 0000 		call lcdWrite
+ 757               	.LVL61:
+  93:digole.c      ****         lcdWrite(height);
+ 758               		.loc 1 93 0
+ 759 0250 C701      		movw r24,r14
+ 760 0252 0E94 0000 		call lcdWrite
+ 761               	.LVL62:
+ 762               	.LBB18:
+  94:digole.c      ****         for (int j = 0; j < height * ((width >> 3) + i); j++)
+ 763               		.loc 1 94 0
+ 764 0256 9E01      		movw r18,r28
+ 765 0258 93E0      		ldi r25,3
+ 766               		1:
+ 767 025a 3595      		asr r19
+ 768 025c 2795      		ror r18
+ 769 025e 9A95      		dec r25
+ 770 0260 01F4      		brne 1b
+ 771               	.LBE18:
+  86:digole.c      ****         if ((width & 7) != 0)
+ 772               		.loc 1 86 0
+ 773 0262 C770      		andi r28,7
+ 774 0264 DD27      		clr r29
+ 775               	.LVL63:
+ 776 0266 81E0      		ldi r24,lo8(1)
+ 777 0268 90E0      		ldi r25,0
+ 778 026a 0F90      		pop __tmp_reg__
+ 779 026c 0F90      		pop __tmp_reg__
+ 780               	.LCFI61:
+ 781               		.cfi_def_cfa_offset 12
+ 782 026e CD2B      		or r28,r29
+ 783 0270 01F4      		brne .L20
+ 784 0272 80E0      		ldi r24,0
+ 785 0274 90E0      		ldi r25,0
+ 786               	.L20:
+ 787               	.LBB20:
+ 788               		.loc 1 94 0
+ 789 0276 820F      		add r24,r18
+ 790 0278 931F      		adc r25,r19
+ 791 027a E89E      		mul r14,r24
+ 792 027c 6001      		movw r12,r0
+ 793 027e E99E      		mul r14,r25
+ 794 0280 D00C      		add r13,r0
+ 795 0282 F89E      		mul r15,r24
+ 796 0284 D00C      		add r13,r0
+ 797 0286 1124      		clr r1
+ 798               	.LVL64:
+ 799 0288 C0E0      		ldi r28,0
+ 800 028a D0E0      		ldi r29,0
+ 801               	.LVL65:
+ 802               	.L21:
+ 803               		.loc 1 94 0 is_stmt 0 discriminator 1
+ 804 028c CC15      		cp r28,r12
+ 805 028e DD05      		cpc r29,r13
+ 806 0290 04F4      		brge .L23
+ 807               	.LVL66:
+ 808 0292 F801      		movw r30,r16
+ 809 0294 EC0F      		add r30,r28
+ 810 0296 FD1F      		adc r31,r29
+ 811               	.LVL67:
+ 812               	.LBB19:
+  95:digole.c      ****         {
+  96:digole.c      ****             printf("%c",pgm_read_byte_near(bitmap + j));
+ 813               		.loc 1 96 0 is_stmt 1 discriminator 2
+ 814               	/* #APP */
+ 815               	 ;  96 "digole.c" 1
+ 816 0298 8491      		lpm r24, Z
+ 817               		
+ 818               	 ;  0 "" 2
+ 819               	.LVL68:
+ 820               	/* #NOAPP */
+ 821               	.LBE19:
+ 822 029a 90E0      		ldi r25,0
+ 823 029c 0E94 0000 		call putchar
+ 824               	.LVL69:
+  94:digole.c      ****         for (int j = 0; j < height * ((width >> 3) + i); j++)
+ 825               		.loc 1 94 0 discriminator 2
+ 826 02a0 2196      		adiw r28,1
+ 827               	.LVL70:
+ 828 02a2 00C0      		rjmp .L21
+ 829               	.LVL71:
+ 830               	.L23:
+ 831               	/* epilogue start */
+ 832               	.LBE20:
+  97:digole.c      ****         }
+  98:digole.c      **** }...
+ 833               		.loc 1 98 0
+ 834 02a4 DF91      		pop r29
+ 835 02a6 CF91      		pop r28
+ 836               	.LVL72:
+ 837 02a8 1F91      		pop r17
+ 838 02aa 0F91      		pop r16
+ 839               	.LVL73:
+ 840 02ac FF90      		pop r15
+ 841 02ae EF90      		pop r14
+ 842               	.LVL74:
+ 843 02b0 DF90      		pop r13
+ 844 02b2 CF90      		pop r12
+ 845 02b4 BF90      		pop r11
+ 846 02b6 AF90      		pop r10
+ 847               	.LVL75:
+ 848 02b8 0895      		ret
+ 849               		.cfi_endproc
+ 850               	.LFE18:
+ 852               	.Letext0:
+ 853               		.file 3 "/usr/local/CrossPack-AVR-20131216/avr/include/stdint.h"
+ 854               		.file 4 "/usr/local/CrossPack-AVR-20131216/avr/include/stdio.h"
+ 855               		.file 5 "uart.h"
+ 856               		.file 6 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 digole.c
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:2      *ABS*:0000003e __SP_H__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:3      *ABS*:0000003d __SP_L__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:4      *ABS*:0000003f __SREG__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:12     .text:00000000 lcdInit
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:37     .text:0000001a lcdWrite
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:100    .text:0000003e gotoPos
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:178    .text:0000008a setPrintPosition
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:258    .text:000000c4 writeStrAtPos
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:316    .text:000000f2 writeStr
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:368    .text:00000112 toggleCursor
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:418    .text:00000130 lcdBlink
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:563    .text:000001ac clearScreen
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:596    .text:000001be drawLine
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//cc04jyHm.s:680    .text:00000216 drawBitmap
+
+UNDEFINED SYMBOLS
+uart_rx
+__iob
+uart_tx
+putchar
+printf
+puts
+__do_copy_data

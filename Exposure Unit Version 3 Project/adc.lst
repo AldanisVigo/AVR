@@ -1,0 +1,109 @@
+   1               		.file	"adc.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	init_ADC
+  12               	init_ADC:
+  13               	.LFB0:
+  14               		.file 1 "adc.c"
+   1:adc.c         **** #include <avr/io.h>
+   2:adc.c         **** #include "adc.h"
+   3:adc.c         **** 
+   4:adc.c         **** void init_ADC(){
+  15               		.loc 1 4 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+   5:adc.c         **** 	ADMUX = ( 1 << REFS0);
+  21               		.loc 1 5 0
+  22 0000 80E4      		ldi r24,lo8(64)
+  23 0002 8093 7C00 		sts 124,r24
+   6:adc.c         **** 	ADCSRA = ( 1 << ADEN ) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); //128 PreScale
+  24               		.loc 1 6 0
+  25 0006 87E8      		ldi r24,lo8(-121)
+  26 0008 8093 7A00 		sts 122,r24
+  27 000c 0895      		ret
+  28               		.cfi_endproc
+  29               	.LFE0:
+  31               	.global	read_ADC
+  33               	read_ADC:
+  34               	.LFB1:
+   7:adc.c         **** }
+   8:adc.c         **** 
+   9:adc.c         **** uint16_t read_ADC(uint8_t ch, long * storein){
+  35               		.loc 1 9 0
+  36               		.cfi_startproc
+  37               	.LVL0:
+  38               	/* prologue: function */
+  39               	/* frame size = 0 */
+  40               	/* stack size = 0 */
+  41               	.L__stack_usage = 0
+  10:adc.c         **** 	ch = ch & 0b00000111;
+  11:adc.c         **** 	ADMUX |= ch;
+  42               		.loc 1 11 0
+  43 000e 9091 7C00 		lds r25,124
+  10:adc.c         **** 	ch = ch & 0b00000111;
+  44               		.loc 1 10 0
+  45 0012 8770      		andi r24,lo8(7)
+  46               	.LVL1:
+  47               		.loc 1 11 0
+  48 0014 892B      		or r24,r25
+  49               	.LVL2:
+  50 0016 8093 7C00 		sts 124,r24
+  12:adc.c         **** 	ADCSRA |= (1 << ADSC);
+  51               		.loc 1 12 0
+  52 001a 8091 7A00 		lds r24,122
+  53 001e 8064      		ori r24,lo8(64)
+  54 0020 8093 7A00 		sts 122,r24
+  55               	.L4:
+  13:adc.c         **** 	while(!(ADCSRA & (1 << ADIF)));
+  56               		.loc 1 13 0 discriminator 1
+  57 0024 8091 7A00 		lds r24,122
+  58 0028 84FF      		sbrs r24,4
+  59 002a 00C0      		rjmp .L4
+  14:adc.c         **** 	
+  15:adc.c         **** 	ADCSRA |= (1 << ADIF);
+  60               		.loc 1 15 0
+  61 002c 8091 7A00 		lds r24,122
+  62 0030 8061      		ori r24,lo8(16)
+  63 0032 8093 7A00 		sts 122,r24
+  16:adc.c         **** 	*storein = ADC;
+  64               		.loc 1 16 0
+  65 0036 8091 7800 		lds r24,120
+  66 003a 9091 7900 		lds r25,120+1
+  67 003e A0E0      		ldi r26,0
+  68 0040 B0E0      		ldi r27,0
+  69 0042 FB01      		movw r30,r22
+  70 0044 8083      		st Z,r24
+  71 0046 9183      		std Z+1,r25
+  72 0048 A283      		std Z+2,r26
+  73 004a B383      		std Z+3,r27
+  17:adc.c         **** 	return(ADC);	
+  74               		.loc 1 17 0
+  75 004c 8091 7800 		lds r24,120
+  76 0050 9091 7900 		lds r25,120+1
+  18:adc.c         **** }
+  77               		.loc 1 18 0
+  78 0054 0895      		ret
+  79               		.cfi_endproc
+  80               	.LFE1:
+  82               	.Letext0:
+  83               		.file 2 "/usr/local/CrossPack-AVR-20131216/avr/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 adc.c
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:2      *ABS*:0000003e __SP_H__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:3      *ABS*:0000003d __SP_L__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:4      *ABS*:0000003f __SREG__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:12     .text:00000000 init_ADC
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccSG64us.s:33     .text:0000000e read_ADC
+
+NO UNDEFINED SYMBOLS

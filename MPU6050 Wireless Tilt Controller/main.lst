@@ -1,0 +1,735 @@
+   1               		.file	"main.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	pwm_init
+  12               	pwm_init:
+  13               	.LFB11:
+  14               		.file 1 "main.c"
+   1:main.c        **** #include <avr/io.h>
+   2:main.c        **** #include <stdio.h>
+   3:main.c        **** #include <stdlib.h>
+   4:main.c        **** #include "uart.h"
+   5:main.c        **** #include "mpu6050.h"
+   6:main.c        **** #include <avr/interrupt.h>
+   7:main.c        **** #include <util/delay.h>
+   8:main.c        **** #include <math.h>
+   9:main.c        **** 
+  10:main.c        **** int16_t axg, ayg, azg, gxds, gyds, gzds, roll, pitch;
+  11:main.c        **** void pwm_init(){
+  15               		.loc 1 11 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  12:main.c        **** 	TCCR1A |= (1 << COM1A1) | (1 << COM1B1) | (1 << WGM11); //Non Inverted PWM
+  21               		.loc 1 12 0
+  22 0000 E0E8      		ldi r30,lo8(-128)
+  23 0002 F0E0      		ldi r31,0
+  24 0004 8081      		ld r24,Z
+  25 0006 826A      		ori r24,lo8(-94)
+  26 0008 8083      		st Z,r24
+  13:main.c        **** 	//Set mode to 14(FAST PWM)
+  14:main.c        **** 	TCCR1B |= (1 << WGM13) | (1 << WGM12) | (1 << CS12); //Prescaler 256
+  27               		.loc 1 14 0
+  28 000a E1E8      		ldi r30,lo8(-127)
+  29 000c F0E0      		ldi r31,0
+  30 000e 8081      		ld r24,Z
+  31 0010 8C61      		ori r24,lo8(28)
+  32 0012 8083      		st Z,r24
+  15:main.c        **** 	//PWMOut = FLCK / PRE (1 + TOP)
+  16:main.c        **** 	//PRE * PWMOut * (1 + TOP) = FLCK
+  17:main.c        **** 	//(1 + TOP) = FLCK/(PRE * PWMOut)
+  18:main.c        **** 	//TOP = (FLCK/(PRE * PWMOut)) - 1
+  19:main.c        ****         //TOP = (16MHz/(256 * 50)) - 1
+  20:main.c        **** 	//TOP = 1250
+  21:main.c        **** 	ICR1 = 1250; //50Hz Duty Cycle 
+  33               		.loc 1 21 0
+  34 0014 82EE      		ldi r24,lo8(-30)
+  35 0016 94E0      		ldi r25,lo8(4)
+  36 0018 9093 8700 		sts 134+1,r25
+  37 001c 8093 8600 		sts 134,r24
+  22:main.c        **** 	DDRB |= (1 << PB2); //Set OC1B as output
+  38               		.loc 1 22 0
+  39 0020 229A      		sbi 0x4,2
+  40 0022 0895      		ret
+  41               		.cfi_endproc
+  42               	.LFE11:
+  44               	.global	mapRange
+  46               	mapRange:
+  47               	.LFB12:
+  23:main.c        **** }
+  24:main.c        **** long mapRange(long a1,long a2,long b1, long b2, long s){
+  48               		.loc 1 24 0
+  49               		.cfi_startproc
+  50               	.LVL0:
+  51 0024 4F92      		push r4
+  52               	.LCFI0:
+  53               		.cfi_def_cfa_offset 3
+  54               		.cfi_offset 4, -2
+  55 0026 5F92      		push r5
+  56               	.LCFI1:
+  57               		.cfi_def_cfa_offset 4
+  58               		.cfi_offset 5, -3
+  59 0028 6F92      		push r6
+  60               	.LCFI2:
+  61               		.cfi_def_cfa_offset 5
+  62               		.cfi_offset 6, -4
+  63 002a 7F92      		push r7
+  64               	.LCFI3:
+  65               		.cfi_def_cfa_offset 6
+  66               		.cfi_offset 7, -5
+  67 002c AF92      		push r10
+  68               	.LCFI4:
+  69               		.cfi_def_cfa_offset 7
+  70               		.cfi_offset 10, -6
+  71 002e BF92      		push r11
+  72               	.LCFI5:
+  73               		.cfi_def_cfa_offset 8
+  74               		.cfi_offset 11, -7
+  75 0030 CF92      		push r12
+  76               	.LCFI6:
+  77               		.cfi_def_cfa_offset 9
+  78               		.cfi_offset 12, -8
+  79 0032 DF92      		push r13
+  80               	.LCFI7:
+  81               		.cfi_def_cfa_offset 10
+  82               		.cfi_offset 13, -9
+  83 0034 EF92      		push r14
+  84               	.LCFI8:
+  85               		.cfi_def_cfa_offset 11
+  86               		.cfi_offset 14, -10
+  87 0036 FF92      		push r15
+  88               	.LCFI9:
+  89               		.cfi_def_cfa_offset 12
+  90               		.cfi_offset 15, -11
+  91 0038 0F93      		push r16
+  92               	.LCFI10:
+  93               		.cfi_def_cfa_offset 13
+  94               		.cfi_offset 16, -12
+  95 003a 1F93      		push r17
+  96               	.LCFI11:
+  97               		.cfi_def_cfa_offset 14
+  98               		.cfi_offset 17, -13
+  99 003c CF93      		push r28
+ 100               	.LCFI12:
+ 101               		.cfi_def_cfa_offset 15
+ 102               		.cfi_offset 28, -14
+ 103 003e DF93      		push r29
+ 104               	.LCFI13:
+ 105               		.cfi_def_cfa_offset 16
+ 106               		.cfi_offset 29, -15
+ 107 0040 00D0      		rcall .
+ 108 0042 00D0      		rcall .
+ 109               	.LCFI14:
+ 110               		.cfi_def_cfa_offset 20
+ 111 0044 CDB7      		in r28,__SP_L__
+ 112 0046 DEB7      		in r29,__SP_H__
+ 113               	.LCFI15:
+ 114               		.cfi_def_cfa_register 28
+ 115               	/* prologue: function */
+ 116               	/* frame size = 4 */
+ 117               	/* stack size = 18 */
+ 118               	.L__stack_usage = 18
+ 119 0048 6983      		std Y+1,r22
+ 120 004a 7A83      		std Y+2,r23
+ 121 004c 8B83      		std Y+3,r24
+ 122 004e 9C83      		std Y+4,r25
+ 123 0050 2901      		movw r4,r18
+ 124 0052 3A01      		movw r6,r20
+ 125 0054 C601      		movw r24,r12
+ 126 0056 B501      		movw r22,r10
+ 127               	.LVL1:
+ 128 0058 2D89      		ldd r18,Y+21
+ 129 005a 3E89      		ldd r19,Y+22
+ 130 005c 4F89      		ldd r20,Y+23
+ 131 005e 588D      		ldd r21,Y+24
+ 132               	.LVL2:
+  25:main.c        **** 	//long percision = (s - a1) / (a1 - a2);
+  26:main.c        **** 	return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
+ 133               		.loc 1 26 0
+ 134 0060 A980      		ldd r10,Y+1
+ 135 0062 BA80      		ldd r11,Y+2
+ 136 0064 CB80      		ldd r12,Y+3
+ 137 0066 DC80      		ldd r13,Y+4
+ 138               	.LVL3:
+ 139 0068 2A19      		sub r18,r10
+ 140 006a 3B09      		sbc r19,r11
+ 141 006c 4C09      		sbc r20,r12
+ 142 006e 5D09      		sbc r21,r13
+ 143 0070 6E19      		sub r22,r14
+ 144 0072 7F09      		sbc r23,r15
+ 145 0074 800B      		sbc r24,r16
+ 146 0076 910B      		sbc r25,r17
+ 147               	.LVL4:
+ 148 0078 0E94 0000 		call __mulsi3
+ 149 007c 4A18      		sub r4,r10
+ 150 007e 5B08      		sbc r5,r11
+ 151 0080 6C08      		sbc r6,r12
+ 152 0082 7D08      		sbc r7,r13
+ 153               	.LVL5:
+ 154 0084 A301      		movw r20,r6
+ 155 0086 9201      		movw r18,r4
+ 156 0088 0E94 0000 		call __divmodsi4
+ 157 008c 2E0D      		add r18,r14
+ 158 008e 3F1D      		adc r19,r15
+ 159 0090 401F      		adc r20,r16
+ 160 0092 511F      		adc r21,r17
+  27:main.c        **** 	//return (b1 + percision * (b2 - b1));
+  28:main.c        **** }
+ 161               		.loc 1 28 0
+ 162 0094 CA01      		movw r24,r20
+ 163 0096 B901      		movw r22,r18
+ 164               	/* epilogue start */
+ 165 0098 0F90      		pop __tmp_reg__
+ 166 009a 0F90      		pop __tmp_reg__
+ 167 009c 0F90      		pop __tmp_reg__
+ 168 009e 0F90      		pop __tmp_reg__
+ 169 00a0 DF91      		pop r29
+ 170 00a2 CF91      		pop r28
+ 171 00a4 1F91      		pop r17
+ 172 00a6 0F91      		pop r16
+ 173 00a8 FF90      		pop r15
+ 174 00aa EF90      		pop r14
+ 175               	.LVL6:
+ 176 00ac DF90      		pop r13
+ 177 00ae CF90      		pop r12
+ 178 00b0 BF90      		pop r11
+ 179 00b2 AF90      		pop r10
+ 180 00b4 7F90      		pop r7
+ 181 00b6 6F90      		pop r6
+ 182 00b8 5F90      		pop r5
+ 183 00ba 4F90      		pop r4
+ 184 00bc 0895      		ret
+ 185               		.cfi_endproc
+ 186               	.LFE12:
+ 188               	.global	__floatsisf
+ 189               	.global	__ltsf2
+ 190               	.global	__gtsf2
+ 191               	.global	__addsf3
+ 192               	.global	__mulsf3
+ 193               	.global	__fixunssfsi
+ 194               	.global	__fixsfsi
+ 195               	.global	ServoRotateTo
+ 197               	ServoRotateTo:
+ 198               	.LFB13:
+  29:main.c        **** long ServoRotateTo(long degree){
+ 199               		.loc 1 29 0
+ 200               		.cfi_startproc
+ 201               	.LVL7:
+ 202 00be CF92      		push r12
+ 203               	.LCFI16:
+ 204               		.cfi_def_cfa_offset 3
+ 205               		.cfi_offset 12, -2
+ 206 00c0 DF92      		push r13
+ 207               	.LCFI17:
+ 208               		.cfi_def_cfa_offset 4
+ 209               		.cfi_offset 13, -3
+ 210 00c2 EF92      		push r14
+ 211               	.LCFI18:
+ 212               		.cfi_def_cfa_offset 5
+ 213               		.cfi_offset 14, -4
+ 214 00c4 FF92      		push r15
+ 215               	.LCFI19:
+ 216               		.cfi_def_cfa_offset 6
+ 217               		.cfi_offset 15, -5
+ 218               	/* prologue: function */
+ 219               	/* frame size = 0 */
+ 220               	/* stack size = 4 */
+ 221               	.L__stack_usage = 4
+ 222 00c6 6B01      		movw r12,r22
+ 223 00c8 7C01      		movw r14,r24
+ 224               	.LVL8:
+  30:main.c        **** 	//A = X1 = -45 , Y1 = leftPWMLimit
+  31:main.c        **** 	//C = X2 = 45  , Y2 = rightPWMLimit
+  32:main.c        **** 	//B X = deg , Y = OCR1B
+  33:main.c        **** 	//mAC = mAB
+  34:main.c        **** 
+  35:main.c        **** 	//Y2 - LPWMlmt    OCR1B - LPWMlmt
+  36:main.c        **** 	//------- =  ----------
+  37:main.c        **** 	//X2 - X1    deg - X1
+  38:main.c        **** 
+  39:main.c        **** 	//ICR1 - 0      OCR1B - 0
+  40:main.c        **** 	//---------  = ----------
+  41:main.c        **** 	//45 - (-45)    deg - (-45)
+  42:main.c        **** 	
+  43:main.c        **** 	//1250 - 0	OCR1B - 0
+  44:main.c        **** 	//--------   =  ---------
+  45:main.c        **** 	//45 + 45       deg + 45
+  46:main.c        **** 	
+  47:main.c        **** 	//1250		OCR1B
+  48:main.c        **** 	//----       =  --------
+  49:main.c        **** 	// 90           deg + 45
+  50:main.c        **** 	
+  51:main.c        **** 	//13.88888889 = OCR1B
+  52:main.c        **** 	//		--------
+  53:main.c        **** 	//		deg + 45
+  54:main.c        **** 	
+  55:main.c        **** 	//X2 = ServoRightLimit
+  56:main.c        **** 	//X1 = ServoLeftLimit
+  57:main.c        **** 	//Y2 = ICR1
+  58:main.c        **** 	//Y1 = 0
+  59:main.c        **** 	double LPwmLmt = 35;
+  60:main.c        **** 	double RPwmLmt = 90;
+  61:main.c        **** 	double rightLimit = 45;
+  62:main.c        **** 	double leftLimit = -45.0;
+  63:main.c        **** 	double stepSize = (rightLimit - leftLimit) / RPwmLmt;
+  64:main.c        **** 	double stepSizeCompensation = .34;
+  65:main.c        **** 	stepSize  += stepSizeCompensation;
+  66:main.c        **** 	if(degree < leftLimit){
+ 225               		.loc 1 66 0
+ 226 00ca 0E94 0000 		call __floatsisf
+ 227               	.LVL9:
+ 228 00ce 20E0      		ldi r18,0
+ 229 00d0 30E0      		ldi r19,0
+ 230 00d2 44E3      		ldi r20,lo8(52)
+ 231 00d4 52EC      		ldi r21,lo8(-62)
+ 232 00d6 0E94 0000 		call __ltsf2
+ 233               	.LVL10:
+ 234 00da 87FF      		sbrs r24,7
+ 235 00dc 00C0      		rjmp .L4
+  67:main.c        **** 		degree = leftLimit;
+ 236               		.loc 1 67 0
+ 237 00de 33ED      		ldi r19,lo8(-45)
+ 238 00e0 C32E      		mov r12,r19
+ 239 00e2 DD24      		clr r13
+ 240 00e4 DA94      		dec r13
+ 241 00e6 ED2C      		mov r14,r13
+ 242 00e8 FD2C      		mov r15,r13
+ 243               	.LVL11:
+ 244               	.L4:
+  68:main.c        **** 	}
+  69:main.c        **** 	if(degree > rightLimit)
+ 245               		.loc 1 69 0
+ 246 00ea C701      		movw r24,r14
+ 247 00ec B601      		movw r22,r12
+ 248 00ee 0E94 0000 		call __floatsisf
+ 249               	.LVL12:
+ 250 00f2 20E0      		ldi r18,0
+ 251 00f4 30E0      		ldi r19,0
+ 252 00f6 44E3      		ldi r20,lo8(52)
+ 253 00f8 52E4      		ldi r21,lo8(66)
+ 254 00fa 0E94 0000 		call __gtsf2
+ 255               	.LVL13:
+ 256 00fe 1816      		cp __zero_reg__,r24
+ 257 0100 04F4      		brge .L5
+  70:main.c        **** 	{
+  71:main.c        **** 		degree = rightLimit;
+ 258               		.loc 1 71 0
+ 259 0102 2DE2      		ldi r18,lo8(45)
+ 260 0104 C22E      		mov r12,r18
+ 261 0106 D12C      		mov r13,__zero_reg__
+ 262 0108 E12C      		mov r14,__zero_reg__
+ 263 010a F12C      		mov r15,__zero_reg__
+ 264               	.LVL14:
+ 265               	.L5:
+  72:main.c        **** 	}
+  73:main.c        **** 	double val = stepSize * (degree - leftLimit);
+ 266               		.loc 1 73 0
+ 267 010c C701      		movw r24,r14
+ 268 010e B601      		movw r22,r12
+ 269 0110 0E94 0000 		call __floatsisf
+ 270               	.LVL15:
+ 271 0114 20E0      		ldi r18,0
+ 272 0116 30E0      		ldi r19,0
+ 273 0118 44E3      		ldi r20,lo8(52)
+ 274 011a 52E4      		ldi r21,lo8(66)
+ 275 011c 0E94 0000 		call __addsf3
+ 276               	.LVL16:
+ 277 0120 2FE1      		ldi r18,lo8(31)
+ 278 0122 35E8      		ldi r19,lo8(-123)
+ 279 0124 4BEA      		ldi r20,lo8(-85)
+ 280 0126 5FE3      		ldi r21,lo8(63)
+ 281 0128 0E94 0000 		call __mulsf3
+ 282               	.LVL17:
+ 283 012c 6B01      		movw r12,r22
+ 284 012e 7C01      		movw r14,r24
+ 285               	.LVL18:
+  74:main.c        **** 	if(val < 35){
+ 286               		.loc 1 74 0
+ 287 0130 20E0      		ldi r18,0
+ 288 0132 30E0      		ldi r19,0
+ 289 0134 4CE0      		ldi r20,lo8(12)
+ 290 0136 52E4      		ldi r21,lo8(66)
+ 291 0138 0E94 0000 		call __ltsf2
+ 292               	.LVL19:
+ 293 013c 87FD      		sbrc r24,7
+ 294 013e 00C0      		rjmp .L9
+  75:main.c        **** 		val = 30;
+  76:main.c        **** 	}
+  77:main.c        **** 	if(val > 90){
+ 295               		.loc 1 77 0
+ 296 0140 20E0      		ldi r18,0
+ 297 0142 30E0      		ldi r19,0
+ 298 0144 44EB      		ldi r20,lo8(-76)
+ 299 0146 52E4      		ldi r21,lo8(66)
+ 300 0148 C701      		movw r24,r14
+ 301 014a B601      		movw r22,r12
+ 302 014c 0E94 0000 		call __gtsf2
+ 303               	.LVL20:
+ 304 0150 1816      		cp __zero_reg__,r24
+ 305 0152 04F4      		brge .L6
+  78:main.c        **** 		val = 95;
+ 306               		.loc 1 78 0
+ 307 0154 C12C      		mov r12,__zero_reg__
+ 308 0156 D12C      		mov r13,__zero_reg__
+ 309 0158 8EEB      		ldi r24,lo8(-66)
+ 310 015a E82E      		mov r14,r24
+ 311 015c 82E4      		ldi r24,lo8(66)
+ 312 015e F82E      		mov r15,r24
+ 313               	.LVL21:
+ 314 0160 00C0      		rjmp .L6
+ 315               	.LVL22:
+ 316               	.L9:
+  75:main.c        **** 		val = 30;
+ 317               		.loc 1 75 0
+ 318 0162 C12C      		mov r12,__zero_reg__
+ 319 0164 D12C      		mov r13,__zero_reg__
+ 320 0166 90EF      		ldi r25,lo8(-16)
+ 321 0168 E92E      		mov r14,r25
+ 322 016a 91E4      		ldi r25,lo8(65)
+ 323 016c F92E      		mov r15,r25
+ 324               	.LVL23:
+ 325               	.L6:
+  79:main.c        **** 	}
+  80:main.c        **** 	OCR1B = val;
+ 326               		.loc 1 80 0
+ 327 016e C701      		movw r24,r14
+ 328 0170 B601      		movw r22,r12
+ 329 0172 0E94 0000 		call __fixunssfsi
+ 330               	.LVL24:
+ 331 0176 7093 8B00 		sts 138+1,r23
+ 332 017a 6093 8A00 		sts 138,r22
+  81:main.c        **** 	return val;
+ 333               		.loc 1 81 0
+ 334 017e C701      		movw r24,r14
+ 335 0180 B601      		movw r22,r12
+ 336 0182 0E94 0000 		call __fixsfsi
+ 337               	.LVL25:
+ 338               	/* epilogue start */
+  82:main.c        **** }
+ 339               		.loc 1 82 0
+ 340 0186 FF90      		pop r15
+ 341 0188 EF90      		pop r14
+ 342 018a DF90      		pop r13
+ 343 018c CF90      		pop r12
+ 344               	.LVL26:
+ 345 018e 0895      		ret
+ 346               		.cfi_endproc
+ 347               	.LFE13:
+ 349               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 350               	.LC0:
+ 351 0000 5468 6520 		.string	"The MPU6050 initialized!"
+ 351      4D50 5536 
+ 351      3035 3020 
+ 351      696E 6974 
+ 351      6961 6C69 
+ 352               	.global	__divsf3
+ 353               	.LC1:
+ 354 0019 582D 5261 		.string	"X-Raw:%d X-Deg:%d\313\232 X-Converted:%ld\n"
+ 354      773A 2564 
+ 354      2058 2D44 
+ 354      6567 3A25 
+ 354      64CB 9A20 
+ 355               		.section	.text.startup,"ax",@progbits
+ 356               	.global	main
+ 358               	main:
+ 359               	.LFB14:
+  83:main.c        **** int main(void){
+ 360               		.loc 1 83 0
+ 361               		.cfi_startproc
+ 362 0000 CF92      		push r12
+ 363               	.LCFI20:
+ 364               		.cfi_def_cfa_offset 3
+ 365               		.cfi_offset 12, -2
+ 366 0002 DF92      		push r13
+ 367               	.LCFI21:
+ 368               		.cfi_def_cfa_offset 4
+ 369               		.cfi_offset 13, -3
+ 370 0004 EF92      		push r14
+ 371               	.LCFI22:
+ 372               		.cfi_def_cfa_offset 5
+ 373               		.cfi_offset 14, -4
+ 374 0006 FF92      		push r15
+ 375               	.LCFI23:
+ 376               		.cfi_def_cfa_offset 6
+ 377               		.cfi_offset 15, -5
+ 378 0008 0F93      		push r16
+ 379               	.LCFI24:
+ 380               		.cfi_def_cfa_offset 7
+ 381               		.cfi_offset 16, -6
+ 382 000a 1F93      		push r17
+ 383               	.LCFI25:
+ 384               		.cfi_def_cfa_offset 8
+ 385               		.cfi_offset 17, -7
+ 386 000c CF93      		push r28
+ 387               	.LCFI26:
+ 388               		.cfi_def_cfa_offset 9
+ 389               		.cfi_offset 28, -8
+ 390 000e DF93      		push r29
+ 391               	.LCFI27:
+ 392               		.cfi_def_cfa_offset 10
+ 393               		.cfi_offset 29, -9
+ 394 0010 00D0      		rcall .
+ 395 0012 00D0      		rcall .
+ 396               	.LCFI28:
+ 397               		.cfi_def_cfa_offset 14
+ 398 0014 CDB7      		in r28,__SP_L__
+ 399 0016 DEB7      		in r29,__SP_H__
+ 400               	.LCFI29:
+ 401               		.cfi_def_cfa_register 28
+ 402               	/* prologue: function */
+ 403               	/* frame size = 4 */
+ 404               	/* stack size = 12 */
+ 405               	.L__stack_usage = 12
+  84:main.c        **** 	uart_init();
+ 406               		.loc 1 84 0
+ 407 0018 0E94 0000 		call uart_init
+ 408               	.LVL27:
+  85:main.c        **** 	//pwm_init();
+  86:main.c        **** 	stdin = &uart_rx;
+ 409               		.loc 1 86 0
+ 410 001c 80E0      		ldi r24,lo8(uart_rx)
+ 411 001e 90E0      		ldi r25,hi8(uart_rx)
+ 412 0020 9093 0000 		sts __iob+1,r25
+ 413 0024 8093 0000 		sts __iob,r24
+  87:main.c        **** 	stdout = &uart_tx;
+ 414               		.loc 1 87 0
+ 415 0028 80E0      		ldi r24,lo8(uart_tx)
+ 416 002a 90E0      		ldi r25,hi8(uart_tx)
+ 417 002c 9093 0000 		sts __iob+2+1,r25
+ 418 0030 8093 0000 		sts __iob+2,r24
+  88:main.c        **** 	mpu6050_init();
+ 419               		.loc 1 88 0
+ 420 0034 0E94 0000 		call mpu6050_init
+ 421               	.LVL28:
+  89:main.c        **** 	pwm_init();
+ 422               		.loc 1 89 0
+ 423 0038 0E94 0000 		call pwm_init
+ 424               	.LVL29:
+  90:main.c        **** 	//sei();
+  91:main.c        **** 	if(mpu6050_testConnection()){
+ 425               		.loc 1 91 0
+ 426 003c 0E94 0000 		call mpu6050_testConnection
+ 427               	.LVL30:
+ 428 0040 8823      		tst r24
+ 429 0042 01F4      		brne .+2
+ 430 0044 00C0      		rjmp .L13
+  92:main.c        **** 		printf("The MPU6050 initialized!\n");
+ 431               		.loc 1 92 0
+ 432 0046 80E0      		ldi r24,lo8(.LC0)
+ 433 0048 90E0      		ldi r25,hi8(.LC0)
+ 434 004a 0E94 0000 		call puts
+ 435               	.LVL31:
+ 436               	.LBB2:
+  93:main.c        **** 		while(1){
+  94:main.c        **** 			//Read the raw values from the MPU6050
+  95:main.c        **** 			mpu6050_getRawData(&axg,&ayg,&azg,&gxds,&gyds,&gzds);
+  96:main.c        **** 			//Calculate Roll and Pitch angles using Trig
+  97:main.c        **** 			int8_t Roll = atan2(ayg,azg) * 180 / M_PI;
+  98:main.c        **** 			int8_t Pitch = atan2(-axg,azg) * 180 / M_PI;
+  99:main.c        **** 			//Display Results
+ 100:main.c        **** 			long converted = ServoRotateTo(Roll);	
+ 101:main.c        **** 			printf("X-Raw:%d X-Deg:%d˚ X-Converted:%ld\n",ayg,Roll,converted);
+ 437               		.loc 1 101 0
+ 438 004e 50E0      		ldi r21,lo8(.LC1)
+ 439 0050 C52E      		mov r12,r21
+ 440 0052 50E0      		ldi r21,hi8(.LC1)
+ 441 0054 D52E      		mov r13,r21
+ 442               	.L14:
+  95:main.c        **** 			mpu6050_getRawData(&axg,&ayg,&azg,&gxds,&gyds,&gzds);
+ 443               		.loc 1 95 0 discriminator 1
+ 444 0056 40E0      		ldi r20,lo8(gzds)
+ 445 0058 E42E      		mov r14,r20
+ 446 005a 40E0      		ldi r20,hi8(gzds)
+ 447 005c F42E      		mov r15,r20
+ 448 005e 00E0      		ldi r16,lo8(gyds)
+ 449 0060 10E0      		ldi r17,hi8(gyds)
+ 450 0062 20E0      		ldi r18,lo8(gxds)
+ 451 0064 30E0      		ldi r19,hi8(gxds)
+ 452 0066 40E0      		ldi r20,lo8(azg)
+ 453 0068 50E0      		ldi r21,hi8(azg)
+ 454 006a 60E0      		ldi r22,lo8(ayg)
+ 455 006c 70E0      		ldi r23,hi8(ayg)
+ 456 006e 80E0      		ldi r24,lo8(axg)
+ 457 0070 90E0      		ldi r25,hi8(axg)
+ 458 0072 0E94 0000 		call mpu6050_getRawData
+ 459               	.LVL32:
+  97:main.c        **** 			int8_t Roll = atan2(ayg,azg) * 180 / M_PI;
+ 460               		.loc 1 97 0 discriminator 1
+ 461 0076 6091 0000 		lds r22,azg
+ 462 007a 7091 0000 		lds r23,azg+1
+ 463 007e 8827      		clr r24
+ 464 0080 77FD      		sbrc r23,7
+ 465 0082 8095      		com r24
+ 466 0084 982F      		mov r25,r24
+ 467 0086 0E94 0000 		call __floatsisf
+ 468               	.LVL33:
+ 469 008a 9B01      		movw r18,r22
+ 470 008c AC01      		movw r20,r24
+ 471 008e 6091 0000 		lds r22,ayg
+ 472 0092 7091 0000 		lds r23,ayg+1
+ 473 0096 8827      		clr r24
+ 474 0098 77FD      		sbrc r23,7
+ 475 009a 8095      		com r24
+ 476 009c 982F      		mov r25,r24
+ 477 009e 2983      		std Y+1,r18
+ 478 00a0 3A83      		std Y+2,r19
+ 479 00a2 4B83      		std Y+3,r20
+ 480 00a4 5C83      		std Y+4,r21
+ 481 00a6 0E94 0000 		call __floatsisf
+ 482               	.LVL34:
+ 483 00aa 2981      		ldd r18,Y+1
+ 484 00ac 3A81      		ldd r19,Y+2
+ 485 00ae 4B81      		ldd r20,Y+3
+ 486 00b0 5C81      		ldd r21,Y+4
+ 487 00b2 0E94 0000 		call atan2
+ 488               	.LVL35:
+ 489 00b6 20E0      		ldi r18,0
+ 490 00b8 30E0      		ldi r19,0
+ 491 00ba 44E3      		ldi r20,lo8(52)
+ 492 00bc 53E4      		ldi r21,lo8(67)
+ 493 00be 0E94 0000 		call __mulsf3
+ 494               	.LVL36:
+ 495 00c2 2BED      		ldi r18,lo8(-37)
+ 496 00c4 3FE0      		ldi r19,lo8(15)
+ 497 00c6 49E4      		ldi r20,lo8(73)
+ 498 00c8 50E4      		ldi r21,lo8(64)
+ 499 00ca 0E94 0000 		call __divsf3
+ 500               	.LVL37:
+ 501 00ce 0E94 0000 		call __fixsfsi
+ 502               	.LVL38:
+ 503 00d2 162F      		mov r17,r22
+ 504               	.LVL39:
+ 100:main.c        **** 			long converted = ServoRotateTo(Roll);	
+ 505               		.loc 1 100 0 discriminator 1
+ 506 00d4 7727      		clr r23
+ 507 00d6 67FD      		sbrc r22,7
+ 508 00d8 7095      		com r23
+ 509 00da 872F      		mov r24,r23
+ 510 00dc 972F      		mov r25,r23
+ 511 00de 0E94 0000 		call ServoRotateTo
+ 512               	.LVL40:
+ 513               		.loc 1 101 0 discriminator 1
+ 514 00e2 9F93      		push r25
+ 515 00e4 8F93      		push r24
+ 516 00e6 7F93      		push r23
+ 517 00e8 6F93      		push r22
+ 518 00ea 812F      		mov r24,r17
+ 519 00ec 9927      		clr r25
+ 520 00ee 87FD      		sbrc r24,7
+ 521 00f0 9095      		com r25
+ 522               	.LVL41:
+ 523 00f2 9F93      		push r25
+ 524               	.LVL42:
+ 525 00f4 1F93      		push r17
+ 526               	.LVL43:
+ 527 00f6 8091 0000 		lds r24,ayg+1
+ 528 00fa 8F93      		push r24
+ 529               	.LVL44:
+ 530 00fc 8091 0000 		lds r24,ayg
+ 531 0100 8F93      		push r24
+ 532               	.LVL45:
+ 533 0102 DF92      		push r13
+ 534               	.LVL46:
+ 535 0104 CF92      		push r12
+ 536               	.LVL47:
+ 537 0106 0E94 0000 		call printf
+ 538               	.LVL48:
+ 539 010a 0FB6      		in __tmp_reg__,__SREG__
+ 540 010c F894      		cli
+ 541 010e DEBF      		out __SP_H__,r29
+ 542 0110 0FBE      		out __SREG__,__tmp_reg__
+ 543 0112 CDBF      		out __SP_L__,r28
+ 544 0114 00C0      		rjmp .L14
+ 545               	.LVL49:
+ 546               	.L13:
+ 547               	.LBE2:
+ 102:main.c        **** 			//_delay_ms(2000);
+ 103:main.c        **** 		}
+ 104:main.c        **** 	}
+ 105:main.c        **** }
+ 548               		.loc 1 105 0
+ 549 0116 80E0      		ldi r24,0
+ 550 0118 90E0      		ldi r25,0
+ 551               	/* epilogue start */
+ 552 011a 0F90      		pop __tmp_reg__
+ 553 011c 0F90      		pop __tmp_reg__
+ 554 011e 0F90      		pop __tmp_reg__
+ 555 0120 0F90      		pop __tmp_reg__
+ 556 0122 DF91      		pop r29
+ 557 0124 CF91      		pop r28
+ 558 0126 1F91      		pop r17
+ 559 0128 0F91      		pop r16
+ 560 012a FF90      		pop r15
+ 561 012c EF90      		pop r14
+ 562 012e DF90      		pop r13
+ 563 0130 CF90      		pop r12
+ 564 0132 0895      		ret
+ 565               		.cfi_endproc
+ 566               	.LFE14:
+ 568               		.comm	pitch,2,1
+ 569               		.comm	roll,2,1
+ 570               		.comm	gzds,2,1
+ 571               		.comm	gyds,2,1
+ 572               		.comm	gxds,2,1
+ 573               		.comm	azg,2,1
+ 574               		.comm	ayg,2,1
+ 575               		.comm	axg,2,1
+ 576               		.text
+ 577               	.Letext0:
+ 578               		.file 2 "/usr/local/CrossPack-AVR-20131216/avr/include/stdint.h"
+ 579               		.file 3 "/usr/local/CrossPack-AVR-20131216/avr/include/stdio.h"
+ 580               		.file 4 "uart.h"
+ 581               		.file 5 "/usr/local/CrossPack-AVR-20131216/avr/include/math.h"
+ 582               		.file 6 "mpu6050.h"
+ 583               		.file 7 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:2      *ABS*:0000003e __SP_H__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:3      *ABS*:0000003d __SP_L__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:4      *ABS*:0000003f __SREG__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:12     .text:00000000 pwm_init
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:46     .text:00000024 mapRange
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:197    .text:000000be ServoRotateTo
+/var/folders/j8/03g8qp616k1dqr37k98mkv2c0000gn/T//ccDkVbWs.s:358    .text.startup:00000000 main
+                            *COM*:00000002 gzds
+                            *COM*:00000002 gyds
+                            *COM*:00000002 gxds
+                            *COM*:00000002 azg
+                            *COM*:00000002 ayg
+                            *COM*:00000002 axg
+                            *COM*:00000002 pitch
+                            *COM*:00000002 roll
+
+UNDEFINED SYMBOLS
+__mulsi3
+__divmodsi4
+__floatsisf
+__ltsf2
+__gtsf2
+__addsf3
+__mulsf3
+__fixunssfsi
+__fixsfsi
+__divsf3
+uart_init
+uart_rx
+__iob
+uart_tx
+mpu6050_init
+mpu6050_testConnection
+puts
+mpu6050_getRawData
+atan2
+printf
+__do_copy_data
+__do_clear_bss

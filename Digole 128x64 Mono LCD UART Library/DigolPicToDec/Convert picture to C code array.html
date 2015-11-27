@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0056)http://www.digole.com/tools/PicturetoC_Hex_converter.php -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Convert picture to C code array</title>
+</head>
+
+<body>
+<form id="form1" name="form1" enctype="multipart/form-data" method="post" action="">
+  <table width="80%" border="0" align="center">
+    <tbody><tr>
+      <td colspan="5" bgcolor="#FFFFCC">This tool is converting your .gif/.jpg/.jpeg/.png image file to embedded C/C++ code style array or string: {HEX: \x..,0x..} and binary file for download, the data format is compatible for all Digole serial modules.<br>
+      You can resize the image to fit your requirement, if you only input "width" or "height", the software will calculate other side automatically, if you input both fields, the software will strech the shorter side. </td>
+    </tr>
+    <tr>
+      <td>Browser your image file</td>
+      <td><input type="file" name="bmpfile" id="bmpfile"></td>
+      <td width="20">&nbsp;</td>
+      <td>Resize to</td>
+      <td>Width
+        <input name="w" type="text" size="3" maxlength="3" value="120">
+        Height:
+        <input name="h" type="text" size="3" maxlength="3" value="56">
+      (Note: leave one field blank will lock the ratio) </td>
+    </tr>
+    <tr>
+      <td align="right">Code format:</td>
+      <td><select name="format" id="format">
+        <option value="0x">HEX:0x</option>
+        <option value="\x">HEX:\x</option>
+        <option value="DEC" selected="">DEC</option>
+      </select></td>
+      <td width="20">&nbsp;</td>
+      <td>Used for</td>
+      <td><select name="dir" id="dir">
+          <option value="0" selected="">Black/White for all draw image function</option>
+          <option value="6">256 Color for Color OLED/LCD(1 byte/pixel)</option>
+           <option value="7">65K Color for Color OLED/LCD(2 bytes/pixel)</option>
+         <option value="8">262K Color for Color OLED/LCD(3 bytes/pixel)</option>
+          <!--    <option value="1" >LSB Horizontal</option> -->
+          <option value="2">0.96/1.3" 12864 B/W OLED Welcome Screen</option>
+          <option value="4">24064 B/W LCD Welcome Screen</option>
+          <option value="5">Other 12864 LCD&amp;Universal Adapter Welcome Screen</option>
+          <!--    <option value="3" >LSB Vertical</option> -->
+      </select></td>
+    </tr>
+    <tr>
+      <td colspan="5" align="center"><input type="submit" name="submit" id="submit" value="Get C string"></td>
+    </tr>
+<tr>
+      <td colspan="5"><br>Digole serial module command(x,y position is reference to top-left of image where you expect on the screen):<br><textarea cols="80" rows="1">DIM,(X position),(Y position),120,56,</textarea><br>Image data:<br><textarea cols="128" rows="25">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,1,254,0,0,0,0,0,0,0,0,0,0
+,0,0,0,31,255,0,0,0,0,0,0,0,0,0,0
+,0,0,1,254,3,128,0,0,0,0,0,0,0,0,0
+,0,0,15,240,1,192,0,0,0,0,0,0,0,0,0
+,0,0,127,0,0,192,0,0,0,0,0,0,0,0,0
+,0,1,248,0,0,224,0,0,0,0,0,0,0,0,0
+,0,7,192,0,112,112,0,0,0,0,0,0,0,0,0
+,0,31,0,3,8,56,0,0,0,0,0,0,0,0,0
+,0,120,0,28,4,28,0,0,0,0,0,0,0,0,0
+,1,224,0,96,6,12,0,0,0,0,0,0,0,0,0
+,3,192,1,192,2,14,0,0,0,0,0,0,0,0,0
+,15,0,3,0,1,7,0,0,0,0,0,0,0,0,0
+,28,0,12,0,0,131,128,0,3,192,0,0,15,0,0
+,56,0,16,8,0,65,128,0,7,224,0,0,31,128,0
+,112,0,96,56,0,97,192,0,6,96,0,0,25,192,0
+,96,0,192,56,0,32,192,30,14,126,0,1,248,248,0
+,224,1,192,56,0,16,255,255,254,127,255,255,249,255,240
+,192,1,148,110,36,16,125,241,254,99,239,222,77,143,248
+,192,3,127,253,219,200,112,204,194,76,195,6,1,50,28
+,192,3,247,255,255,232,38,74,128,20,185,115,137,106,76
+,192,3,127,255,255,232,44,68,19,236,48,67,251,176,76
+,192,1,191,255,127,248,36,76,143,236,19,34,123,178,12
+,224,1,223,63,255,184,96,76,204,12,131,6,120,51,44
+,96,0,192,36,248,112,112,204,152,12,199,142,120,50,108
+,112,0,124,27,120,32,255,255,131,255,255,255,255,254,12
+,56,0,48,5,192,96,207,255,195,255,252,255,207,254,12
+,28,0,24,2,0,65,128,0,231,0,0,0,0,3,188
+,15,0,4,0,0,131,128,0,126,0,0,0,0,1,248
+,7,128,3,0,1,7,0,0,24,0,0,0,0,0,224
+,1,224,0,192,2,6,0,0,0,0,0,0,0,0,0
+,0,248,0,48,6,14,0,0,0,0,0,0,0,0,0
+,0,62,0,12,12,28,0,0,0,0,0,0,0,0,0
+,0,15,128,3,24,56,0,0,0,0,0,0,0,0,0
+,0,3,224,0,240,112,0,0,0,0,0,0,0,0,0
+,0,0,248,0,0,96,0,0,0,0,0,0,0,0,0
+,0,0,31,0,0,192,0,0,0,0,0,0,0,0,0
+,0,0,7,192,1,128,0,0,0,0,0,0,0,0,0
+,0,0,0,248,3,0,0,0,0,0,0,0,0,0,0
+,0,0,0,31,7,0,0,0,0,0,0,0,0,0,0
+,0,0,0,1,252,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</textarea><br>New image:<img src="data:image/jpeg;base64,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"> Width=120Pixels, Height=56Pixels<br>
+<a href="data:application/x-download;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf4AAAAAAAAAAAAAAAAAH/8AAAAAAAAAAAAAAAAB/gOAAAAAAAAAAAAAAAAP8AHAAAAAAAAAAAAAAAB/AADAAAAAAAAAAAAAAAH4AADgAAAAAAAAAAAAAAfAAHBwAAAAAAAAAAAAAB8AAwg4AAAAAAAAAAAAAHgAHAQcAAAAAAAAAAAAAeAAYAYMAAAAAAAAAAAAA8ABwAIOAAAAAAAAAAAADwADAAEHAAAAAAAAAAAAHAAMAACDgAADwAAADwAAOAAQCABBgAAH4AAAH4AAcABgOABhwAAGYAAAGcAAYADAOAAgwB4OfgAB+PgA4AHAOAAQ///+f///+f/wwAGUbiQQffH+Y+/eTY/4wAN//dvIcMzCTMMGATIcwAP3///oJkqAFLlziWpMwAN////oLEQT7DBD+7BMwAG//3/4JEyP7BMie7IM4AHfP/+4YEzMDIMGeDMsYADAJPhwcMyYDMeOeDJscAB8G3gg//+D//////4MOAAwBcBgz//D//z/z/4MHAAYAgBBgADnAAAAAAO8DwAEAACDgAB+AAAAAAH4B4ADAAEHAAAYAAAAAADgAeAAwAIGAAAAAAAAAAAAAPgAMAYOAAAAAAAAAAAAAD4ADAwcAAAAAAAAAAAAAA+AAxg4AAAAAAAAAAAAAAPgAPBwAAAAAAAAAAAAAAD4AABgAAAAAAAAAAAAAAAfAADAAAAAAAAAAAAAAAAHwAGAAAAAAAAAAAAAAAAA+AMAAAAAAAAAAAAAAAAAHwcAAAAAAAAAAAAAAAAAAfwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">Download data</a> will save the converted data as binary file</td>
+    </tr>  </tbody></table>
+</form>
+
+</body></html>

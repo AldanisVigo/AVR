@@ -1,0 +1,29 @@
+<h1>Exposure Unit Build Project Page</h1>
+
+<h3>Preface:</h3>
+<p>
+Hello everyone, my name is Aldanis Vigo. I am an ITT tech graduate who loves programming and electronics. Currently I am working on an Exposure Unit project which I am designing. I will make the whole design open to everyone right here. On this page I will mostly log my activities regarding the project so that it is clear what steps I took to accomplish the build. Hopefully this project is useful to you in some way. 
+</p>
+<br/>
+<h3>Project Description</h3>
+<p>
+The exposure unit is controlled by an ATMEGA168 microcontroller. It is interfaced to two 74LS47 IC's that drive the counter display which consists of two common anode 7 segment LED didplays. It is also interfaced to a stop, start and lid trip switches. The microcontroller is powered by a liniar power supply operating at 12VDC and 5VDC. The lights consist of a panel containing 128 UV Leds.
+</p>
+
+<br/>
+<br/>
+
+
+<p>
+<b><i>Monday October 26th 2015</i></b>
+<br/>
+<a href="https://raw.githubusercontent.com/AldanisVigo/AVR/gh-pages/ExposureUnit/Schematic/v1.0%20Draft%20Schematic%20Incomplete.png">Here</a>  is the draft schematic for both PIC16F887 and ATMEGA168. The current design prototype does not have schematics yet because I havent finished them. These schematics will not work with the current code because I am mostly using parts that got pulled out of old electronics and I had to redisign in order to accomodate these parts so I wouldn't have to buy new ones. For example, I did not have the 7 segment dual display at first. Ihad two individual common cathode 7 segment led displays from Radio Shack I had from a while back, then I came across the one I am using in the disign currently. The one I have on the board now is a dual common anode display. These can also be driven with the 74LS47 the difference is that when you send it (0001) for example the 7 segment displays (1000) which is a reflection of the binary number. This issue was fixed with simple code for the current version 1.0. Iam slowly re-cading the schematics that work with the current code and I will post them soon. 
+</p>
+
+<p>
+<b><i>Tuesday October 27th 2015</i></b>
+<br/>
+I decided to stay up all night and finish the board schematics and layout design. I have completed them and have them posted right <a href="https://github.com/AldanisVigo/AVR/tree/gh-pages/ExposureUnit"> here</a>. Go check them out. Working through the designs made me realize there are many improvements I can do for V1.1. I might or might not add the files to next version of this project. It depends on how crazy I get with it.
+</p>
+<h3>The Code</h3>
+Is in my repository <a href="https://github.com/AldanisVigo/AVR/tree/master/ExposureUnit">here</a>
