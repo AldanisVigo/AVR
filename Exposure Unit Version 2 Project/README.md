@@ -11,6 +11,6 @@ In order for make program to work you need to specify what programmer you are us
 
 Enjoy!
 
-#Project Page Located [Here]("https://aldanisvigo.github.io/AVR/ExposureUnit/index.html")
+#Project Page Located https://aldanisvigo.github.io/AVR/ExposureUnit/index.html
 
 Please visit the project page to acquire the schematics and board cad files you will need to make the PCBs.
