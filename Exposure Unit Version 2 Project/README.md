@@ -1,8 +1,10 @@
 #Using Makefile
+
 To use makefile you use one of the following:
-	**make
+	
+	__make__
 		*compile the whole thing
-	**make clean
+	__make__ clean
 		*undo everything
 	**make program
 		*program the microcontroller using avr-dude
